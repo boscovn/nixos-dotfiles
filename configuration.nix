@@ -92,7 +92,8 @@
     ripgrep
     gopass
     gopass-jsonapi
-    #  wget
+    bat
+     wget
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
