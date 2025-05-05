@@ -9,6 +9,7 @@
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
   ];
+  services.mullvad-vpn.enable = true;
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -23,6 +24,7 @@
   fonts.packages = [
     pkgs.nerd-fonts.fira-code
   ];
+  nix.settings.trusted-users = ["bosco"];
 
   networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -93,6 +95,7 @@
     gopass
     gopass-jsonapi
     bat
+    trashy
      wget
   ];
 
