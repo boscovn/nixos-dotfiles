@@ -35,6 +35,7 @@
       ];
       modules-right = [
         "temperature"
+	"pulseaudio"
         "battery"
       ];
 

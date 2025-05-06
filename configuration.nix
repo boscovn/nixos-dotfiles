@@ -9,6 +9,8 @@
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
   ];
+  hardware.bluetooth.enable = true;
+  services.blueman.enable = true;
   services.mullvad-vpn.enable = true;
 
   # Bootloader.
@@ -24,7 +26,7 @@
   fonts.packages = [
     pkgs.nerd-fonts.fira-code
   ];
-  nix.settings.trusted-users = ["bosco"];
+  nix.settings.trusted-users = [ "bosco" ];
 
   networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -96,7 +98,7 @@
     gopass-jsonapi
     bat
     trashy
-     wget
+    wget
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
