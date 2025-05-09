@@ -87,16 +87,19 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
+    bat
+    fd
     firefox
     foot
     fuzzel
-    neovim
     ghostty
-    fd
-    ripgrep
+    go
+    gopls
+    delve
     gopass
     gopass-jsonapi
-    bat
+    neovim
+    ripgrep
     trashy
     wget
   ];
