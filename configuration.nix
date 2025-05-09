@@ -98,7 +98,7 @@
     delve
     gopass
     gopass-jsonapi
-    neovim
+    # neovim
     ripgrep
     trashy
     wget

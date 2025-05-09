@@ -1,5 +1,13 @@
-{ config, pkgs, ... }:
 {
+  config,
+  pkgs,
+  inputs,
+  ...
+}:
+{
+  imports = [
+    inputs.nixvim.homeManagerModules.nixvim
+  ];
   home.username = "bosco";
   home.homeDirectory = "/home/bosco";
   home.stateVersion = "24.05";
@@ -83,5 +91,14 @@
     enable = true;
     userName = "Bosco Vallejo-Nágera";
     userEmail = "bosco@vallejonagera.xyz";
+  };
+  programs.nixvim = {
+    enable = true;
+    globals.mapleader = true;
+    plugins = {
+      oil.enable = true;
+      telescope.enable = true;
+      web-devicons.enable = true;
+    };
   };
 }
