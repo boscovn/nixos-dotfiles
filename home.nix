@@ -59,7 +59,7 @@
         all-outputs = true;
       };
     };
-    "pulseaudio" = {
+    pulseaudio = {
       "format" = "{volume}% {icon}";
       "format-bluetooth" = "{volume}% {icon}";
       "format-muted" = "";
@@ -85,7 +85,7 @@
   programs.gpg.enable = true;
   services.gpg-agent = {
     enable = true;
-    pinentryPackage = pkgs.pinentry-gnome3;
+    pinentry.package = pkgs.pinentry-gnome3;
   };
   programs.git = {
     enable = true;
@@ -94,11 +94,24 @@
   };
   programs.nixvim = {
     enable = true;
-    globals.mapleader = true;
+    globals.mapleader = " ";
+    lsp.servers = {
+      gopls.enable = true;
+    };
     plugins = {
       oil.enable = true;
       telescope.enable = true;
       web-devicons.enable = true;
+      treesitter.enable = true;
+      cmp = {
+        autoEnableSources = true;
+        settings.sources = [
+          { name = "nvim_lsp"; }
+          { name = "path"; }
+          { name = "buffer"; }
+        ];
+      };
+
     };
   };
 }

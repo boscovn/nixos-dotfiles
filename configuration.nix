@@ -9,6 +9,9 @@
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
   ];
+  # stylix.enable = true;
+  # stylix.base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
+
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
   services.mullvad-vpn.enable = true;

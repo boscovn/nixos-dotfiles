@@ -12,6 +12,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     treefmt-nix.url = "github:numtide/treefmt-nix";
+    # stylix.url = "github:danth/stylix";
   };
 
   outputs =
@@ -22,6 +23,7 @@
       treefmt-nix,
       systems,
       nixvim,
+    # stylix,
     }@inputs:
     let
       # Small tool to iterate over each systems
@@ -47,6 +49,7 @@
             home-manager.users.bosco = import ./home.nix;
             home-manager.extraSpecialArgs = { inherit inputs; };
           }
+          # stylix.nixosModules.stylix
         ];
 
       };
