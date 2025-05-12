@@ -1,4 +1,7 @@
 { config, pkgs, ... }:
 {
-  imports = [ ./waybar.nix ];
+  imports = [
+    ./waybar.nix
+    ./hypridle.nix
+  ];
 }

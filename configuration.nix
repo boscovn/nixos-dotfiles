@@ -92,15 +92,16 @@
   environment.systemPackages = with pkgs; [
     bat
     fd
+    delve
     firefox
     foot
     fuzzel
     ghostty
     go
-    gopls
-    delve
     gopass
     gopass-jsonapi
+    gopls
+    hyprlock
     # neovim
     ripgrep
     trashy
