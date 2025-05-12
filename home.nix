@@ -6,8 +6,8 @@
 }:
 {
   imports = [
-    inputs.nixvim.homeManagerModules.nixvim
     ./modules/wayland
+    ./modules/nixvim
     ./modules/shell
   ];
   home.username = "bosco";
@@ -29,27 +29,5 @@
     enable = true;
     userName = "Bosco Vallejo-Nágera";
     userEmail = "bosco@vallejonagera.xyz";
-  };
-  programs.nixvim = {
-    enable = true;
-    globals.mapleader = " ";
-    lsp.servers = {
-      gopls.enable = true;
-    };
-    plugins = {
-      oil.enable = true;
-      telescope.enable = true;
-      web-devicons.enable = true;
-      treesitter.enable = true;
-      cmp = {
-        autoEnableSources = true;
-        settings.sources = [
-          { name = "nvim_lsp"; }
-          { name = "path"; }
-          { name = "buffer"; }
-        ];
-      };
-
-    };
   };
 }
