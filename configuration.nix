@@ -28,6 +28,7 @@
   };
   fonts.packages = [
     pkgs.nerd-fonts.fira-code
+    pkgs.font-awesome
   ];
   nix.settings.trusted-users = [ "bosco" ];
 

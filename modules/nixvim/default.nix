@@ -11,8 +11,11 @@
   programs.nixvim = {
     enable = true;
     globals.mapleader = " ";
-    lsp.servers = {
-      gopls.enable = true;
+    lsp = {
+      enable = true;
+      servers = {
+        gopls.enable = true;
+      };
     };
     keymaps = [
       {
@@ -22,7 +25,7 @@
       {
         action = "<cmd>Telescope find_files<CR>";
         key = "<leader>sf";
-	options.desc = "Search files with telescope";
+        options.desc = "Search files with telescope";
       }
     ];
     colorschemes.tokyonight.enable = true;

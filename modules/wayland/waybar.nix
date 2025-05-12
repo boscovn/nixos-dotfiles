@@ -6,11 +6,6 @@
 }:
 {
   programs.waybar.enable = true;
-  programs.waybar.style = /* css */''
-      * {
-    	font-family = Fira Code;	
-      }
-  '';
   programs.waybar.settings = {
     mainBar = {
       layer = "top";
