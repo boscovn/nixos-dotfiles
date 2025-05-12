@@ -6,6 +6,11 @@
 }:
 {
   programs.waybar.enable = true;
+  programs.waybar.style = /* css */''
+      * {
+    	font-family = Fira Code;	
+      }
+  '';
   programs.waybar.settings = {
     mainBar = {
       layer = "top";
@@ -54,7 +59,7 @@
         ];
       };
       "scroll-step" = 1;
-      "on-click" = "${pkgs.pavucontrol}";
+      "on-click" = "${pkgs.pavucontrol}/bin/pavucontrol";
     };
   };
 }
