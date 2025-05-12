@@ -17,7 +17,7 @@
       listener = [
         {
           timeout = 900;
-          on-timeout = "${pkgs.hyprlock}";
+          on-timeout = "${pkgs.hyprlock}/bin/hyprlock";
         }
         {
           timeout = 1200;
