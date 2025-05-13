@@ -14,6 +14,7 @@
   home.username = "bosco";
   home.homeDirectory = "/home/bosco";
   home.stateVersion = "24.05";
+  home.packages = with pkgs; [ gcr ];
   programs.mpv = {
     enable = true;
     config = {
