@@ -14,6 +14,7 @@
 
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
+  services.fwupd.enable = true;
   services.mullvad-vpn.enable = true;
 
   # Bootloader.
@@ -137,6 +138,7 @@
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "24.05"; # Did you read the comment?
   programs.hyprland.enable = true;
+  programs.hyprland.withUWSM = true;
   #   enable = true;
   #   package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
   #   portalPackage = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
