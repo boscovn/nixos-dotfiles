@@ -16,6 +16,7 @@
   home.homeDirectory = "/home/bosco";
   home.stateVersion = "24.05";
   home.packages = with pkgs; [ gcr ];
+  programs.gh.enable = true;
   programs.mpv = {
     enable = true;
     config = {
