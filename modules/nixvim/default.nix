@@ -62,7 +62,7 @@
         #   key = "gd";
         # }
         {
-          action = "<CMD>Lspsaga hover_doc<Enter>";
+          action = "<CMD>Lsp hover_doc<Enter>";
           key = "K";
         }
       ];
