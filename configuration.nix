@@ -104,7 +104,6 @@
     gopass-jsonapi
     gopls
     hyprlock
-    # neovim
     ripgrep
     trashy
     wget
@@ -128,7 +127,6 @@
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
-  #:services.hyprland.enable = true;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
@@ -139,10 +137,6 @@
   system.stateVersion = "24.05"; # Did you read the comment?
   programs.hyprland.enable = true;
   programs.hyprland.withUWSM = true;
-  #   enable = true;
-  #   package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
-  #   portalPackage = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
-  # };
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
