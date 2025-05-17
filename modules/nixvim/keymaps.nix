@@ -18,6 +18,11 @@
         key = "<leader>sf";
         options.desc = "Search files with telescope";
       }
+      {
+        action = "<cmd>Telescope grep_string<CR>";
+        key = "<leader>sg";
+        options.desc = "Search for a string in the project with telescope";
+      }
     ];
     lsp.keymaps = [
 

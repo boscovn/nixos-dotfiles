@@ -29,6 +29,7 @@
     enable = true;
     pinentry.package = pkgs.pinentry-gnome3;
   };
+  programs.yazi.enable = true;
   programs.git = {
     enable = true;
     userName = "Bosco Vallejo-Nágera";
