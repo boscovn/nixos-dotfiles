@@ -12,7 +12,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     treefmt-nix.url = "github:numtide/treefmt-nix";
-    # stylix.url = "github:danth/stylix";
+    stylix.url = "github:danth/stylix";
   };
 
   outputs =
@@ -23,7 +23,7 @@
       treefmt-nix,
       systems,
       nixvim,
-    # stylix,
+      stylix,
     }@inputs:
     let
       # Small tool to iterate over each systems
@@ -41,6 +41,7 @@
       nixosConfigurations.thinkpad = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
+          stylix.nixosModules.stylix
           ./configuration.nix
           home-manager.nixosModules.home-manager
           {
