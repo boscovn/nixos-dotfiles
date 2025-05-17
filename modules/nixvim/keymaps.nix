@@ -70,7 +70,7 @@
         key = "K";
       }
     ];
-    pluggins.cmp.settings.mapping = {
+    plugins.cmp.settings.mapping = {
       "<C-d>" = "cmp.mapping.scroll_docs(-4)";
       "<C-f>" = "cmp.mapping.scroll_docs(4)";
       "<C-Space>" = "cmp.mapping.complete()";
