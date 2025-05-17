@@ -10,7 +10,7 @@
     ./hardware-configuration.nix
   ];
   stylix.enable = true;
-  stylix.base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
+  stylix.base16Scheme = "${pkgs.base16-schemes}/share/themes/tokyo-night-storm.yaml";
 
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
