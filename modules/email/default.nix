@@ -5,7 +5,7 @@
   ...
 }:
 {
-
+  home.packages = with pkgs; [ hydroxide ];
   programs.mbsync.enable = true;
   programs.msmtp.enable = true;
   programs.aerc = {
@@ -61,6 +61,26 @@
         host = "smtp.hostinger.com";
       };
       userName = "bosco@vallejonagera.xyz";
+    };
+    accounts.proton = {
+      address = "boscovn@protonmail.com";
+      imap.host = "localhost";
+      imap.port = 1143;
+      imap.tls.enable = false;
+      mbsync = {
+        enable = true;
+        create = "maildir";
+      };
+      # msmtp.enable = true;
+      notmuch.enable = true;
+      aerc.enable = true;
+      # primary = true;
+      realName = "Bosco Vallejo-Nágera";
+      passwordCommand = "gopass show protonmailbridge";
+      # smtp = {
+      #   host = "smtp.hostinger.com";
+      # };
+      userName = "boscovn";
     };
   };
   programs.notmuch = {
