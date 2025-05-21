@@ -8,4 +8,5 @@
     NIXOS_OZONE_WL = "1";
   };
   services.hyprpolkitagent.enable = true;
+  services.swaync.enable = true;
 }

@@ -1,8 +1,8 @@
 # treefmt.nix
 { pkgs, ... }:
 {
-  # Used to find the project root
+  # used to find the project root
   projectRootFile = "flake.nix";
-  # Enable the terraform formatter
+  # enable the terraform formatter
   programs.nixfmt.enable = true;
 }

@@ -13,19 +13,20 @@
       height = 30;
       output = [
         "eDP-1"
-        "HDMI-A-1"
+        "HDMI-A-2"
       ];
       modules-left = [
         "hyprland/workspaces"
-        "hyprland/mode"
         "wlr/taskbar"
       ];
       modules-center = [
         "hyprland/window"
       ];
       modules-right = [
+        "hyprland/language"
         "temperature"
         "pulseaudio"
+        "clock"
         "battery"
       ];
 

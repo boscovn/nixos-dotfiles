@@ -64,7 +64,7 @@
     };
     accounts.proton = {
       address = "boscovn@protonmail.com";
-      imap.host = "localhost";
+      imap.host = "127.0.0.1";
       imap.port = 1143;
       imap.tls.enable = false;
       mbsync = {

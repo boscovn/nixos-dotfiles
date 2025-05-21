@@ -80,7 +80,7 @@
       "wheel"
     ];
     shell = pkgs.zsh;
-    packages = with pkgs; [ ];
+    # packages = with pkgs; [ ];
   };
 
   # Enable automatic login for the user.
