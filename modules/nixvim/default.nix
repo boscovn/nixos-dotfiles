@@ -31,9 +31,9 @@
       treesitter.enable = true;
       which-key.enable = true;
       luasnip.enable = true;
-      dap = true;
-      dap-ui = true;
-      dap-go = true;
+      dap.enable =  true;
+      dap-ui.enable =  true;
+      dap-go.enable =  true;
       cmp-omni.enable = true;
       cmp-dap.enable = true;
       cmp-nvim-lsp.enable = true;
