@@ -70,10 +70,10 @@
       #   action = lib.nixvim.mkRaw "require('telescope.builtin').lsp_definitions";
       #   key = "gd";
       # }
-      {
-        action = "<CMD>Lsp hover_doc<Enter>";
-        key = "K";
-      }
+      # {
+      #   action = "<CMD>Lsp hover_doc<Enter>";
+      #   key = "K";
+      # }
     ];
     plugins.cmp.settings.mapping = {
       "<C-d>" = "cmp.mapping.scroll_docs(-4)";
