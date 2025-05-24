@@ -14,6 +14,7 @@
 
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
+  programs.kdeconnect.enable = true;
   services.fwupd.enable = true;
   services.mullvad-vpn.enable = true;
 
