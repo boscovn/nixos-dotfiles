@@ -10,7 +10,7 @@
     ./hardware-configuration.nix
   ];
   stylix.enable = true;
-  stylix.base16Scheme = "${pkgs.base16-schemes}/share/themes/tokyo-night-moon.yaml";
+  stylix.base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
 
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
