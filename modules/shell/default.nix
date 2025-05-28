@@ -16,10 +16,14 @@
       reb = "sudo nixos-rebuild switch --flake ~/.dotfiles#thinkpad";
     };
   };
+  programs.bash = {
+    enable = true;
+  };
   programs.starship.enable = true;
   programs.zoxide.enable = true;
   programs.atuin = {
     enable = true;
     enableZshIntegration = true;
+    enableBashIntegration = true;
   };
 }
