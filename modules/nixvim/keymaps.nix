@@ -19,6 +19,11 @@
         options.desc = "Search files with telescope";
       }
       {
+        action = "<cmd>Telescope find_files<CR>";
+        key = "<leader><leader>";
+        options.desc = "Search opened buffers with telescope";
+      }
+      {
         action = "<cmd>Telescope grep_string<CR>";
         key = "<leader>sg";
         options.desc = "Search for a string in the project with telescope";
@@ -31,7 +36,7 @@
         lspBufAction = "definition";
       }
       {
-        key = "gD";
+        key = "gr";
         lspBufAction = "references";
       }
       {

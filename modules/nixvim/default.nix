@@ -26,6 +26,8 @@
     plugins = {
       lsp.enable = true;
       oil.enable = true;
+      otter.enable = true;
+      snacks.enable = true;
       telescope.enable = true;
       web-devicons.enable = true;
       treesitter.enable = true;
