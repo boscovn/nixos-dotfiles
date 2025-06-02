@@ -16,10 +16,11 @@
   home.homeDirectory = "/home/bosco";
   home.stateVersion = "24.05";
   home.packages = with pkgs; [
+    devenv
     gcr
+    kdePackages.dolphin
     onlyoffice-desktopeditors
     ouch
-    kdePackages.dolphin
   ];
   programs.gh.enable = true;
   programs.zathura.enable = true;
