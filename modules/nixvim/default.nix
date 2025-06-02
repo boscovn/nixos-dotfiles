@@ -30,7 +30,12 @@
       snacks.enable = true;
       telescope.enable = true;
       web-devicons.enable = true;
-      treesitter.enable = true;
+      treesitter = {
+        enable = true;
+        settings = {
+          highlight.enable = true;
+        };
+      };
       which-key.enable = true;
       luasnip.enable = true;
       dap.enable = true;
