@@ -34,28 +34,32 @@
         disable-scroll = true;
         all-outputs = true;
       };
-    };
-    pulseaudio = {
-      "format" = "{volume}% {icon}";
-      "format-bluetooth" = "{volume}% {icon}";
-      "format-muted" = "";
-      "format-icons" = {
-        "alsa_output.pci-0000_00_1f.3.analog-stereo" = "";
-        "alsa_output.pci-0000_00_1f.3.analog-stereo-muted" = "";
-        "headphones" = "";
-        "handsfree" = "";
-        "headset" = "";
-        "phone" = "";
-        "phone-muted" = "";
-        "portable" = "";
-        "car" = "";
-        "default" = [
-          ""
-          ""
-        ];
+      temperature = {
+        critical-threshold = 50;
+        format = " {temperatureC}°C  ";
       };
-      "scroll-step" = 1;
-      "on-click" = "${pkgs.pavucontrol}/bin/pavucontrol";
+      pulseaudio = {
+        "format" = "{volume}% {icon}";
+        "format-bluetooth" = "{volume}% {icon}";
+        "format-muted" = "";
+        "format-icons" = {
+          "alsa_output.pci-0000_00_1f.3.analog-stereo" = "";
+          "alsa_output.pci-0000_00_1f.3.analog-stereo-muted" = "";
+          "headphones" = "";
+          "handsfree" = "";
+          "headset" = "";
+          "phone" = "";
+          "phone-muted" = "";
+          "portable" = "";
+          "car" = "";
+          "default" = [
+            ""
+            ""
+          ];
+        };
+        "scroll-step" = 1;
+        "on-click" = "${pkgs.pavucontrol}/bin/pavucontrol";
+      };
     };
   };
 }
