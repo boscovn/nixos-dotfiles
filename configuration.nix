@@ -14,7 +14,7 @@
   stylix.opacity.terminal = 0.8;
   stylix.fonts.monospace = {
     package = pkgs.nerd-fonts.fira-code;
-    name = "FiraCode";
+    name = "FiraCodeNerdFont";
   };
 
   hardware.bluetooth.enable = true;
