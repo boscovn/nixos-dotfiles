@@ -12,7 +12,10 @@
   stylix.enable = true;
   stylix.base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
   stylix.opacity.terminal = 0.8;
-  # stylix.fon
+  stylix.fonts.monospace = {
+    package = pkgs.nerd-fonts.fira-code;
+    name = "FiraCode";
+  };
 
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
@@ -23,6 +26,7 @@
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  boot.initrd.systemd.enable = true;
   nix.settings.experimental-features = [
     "nix-command"
     "flakes"
@@ -87,7 +91,9 @@
   };
 
   # Enable automatic login for the user.
+  # TODO: remove getty to use a display manager
   services.getty.autologinUser = "bosco";
+  services.gnome.gnome-keyring.enable = true;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
