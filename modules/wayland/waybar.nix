@@ -36,7 +36,7 @@
       };
       temperature = {
         critical-threshold = 50;
-        format = " {temperatureC}°C  ";
+        format = " {temperatureC}°C";
       };
       pulseaudio = {
         "format" = "{volume}% {icon}";

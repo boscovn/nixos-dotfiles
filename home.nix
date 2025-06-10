@@ -16,12 +16,18 @@
   home.homeDirectory = "/home/bosco";
   home.stateVersion = "24.05";
   home.packages = with pkgs; [
+
+    corefonts
     devenv
     gcr
     kdePackages.dolphin
+    liberation_ttf
     onlyoffice-desktopeditors
     ouch
+    telegram-desktop
+    vista-fonts
   ];
+  fonts.fontconfig.enable = true;
   programs.gh.enable = true;
   programs.zathura.enable = true;
   programs.mpv = {
