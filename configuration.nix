@@ -19,6 +19,7 @@
 
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
+  virtualisation.docker.enable = true;
   programs.kdeconnect.enable = true;
   services.fwupd.enable = true;
   services.mullvad-vpn.enable = true;
@@ -85,6 +86,7 @@
     extraGroups = [
       "networkmanager"
       "wheel"
+      "docker"
     ];
     shell = pkgs.zsh;
     # packages = with pkgs; [ ];
