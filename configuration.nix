@@ -95,7 +95,8 @@
   # Enable automatic login for the user.
   # TODO: remove getty to use a display manager
   services.getty.autologinUser = "bosco";
-  services.gnome.gnome-keyring.enable = true;
+  # TODO: fix it, make the keyring work
+  services.gnome.gnome-keyring.enable = false;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
