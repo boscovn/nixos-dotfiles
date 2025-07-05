@@ -80,13 +80,15 @@
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   programs.zsh.enable = true;
+  programs.adb.enable = true;
   users.users.bosco = {
     isNormalUser = true;
     description = "Bosco";
     extraGroups = [
+      "adbusers"
+      "docker"
       "networkmanager"
       "wheel"
-      "docker"
     ];
     shell = pkgs.zsh;
     # packages = with pkgs; [ ];
