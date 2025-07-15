@@ -149,7 +149,7 @@
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "24.05"; # Did you read the comment?
   programs.hyprland.enable = true;
-  programs.hyprland.withUWSM = true;
+  # programs.hyprland.withUWSM = true;
   security.rtkit.enable = true;
   # Todo polkit
   services.pipewire = {
@@ -158,5 +158,15 @@
     alsa.support32Bit = true;
     pulse.enable = true;
   };
-
+  services.xserver.videoDrivers = [ "nvidia" ];
+  hardware.nvidia.modesetting.enable = true;
+  hardware.nvidia.prime = {
+    offload = {
+      enable = true;
+      enableOffloadCmd = true;
+    };
+    intelBusId = "PCI:0:2:0";
+    nvidiaBusId = "PCI:1:0:0";
+  };
+  users.users.bosco.extraGroups = [ "video" ];
 }

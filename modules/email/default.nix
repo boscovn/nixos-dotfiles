@@ -63,27 +63,27 @@
       };
       userName = "bosco@vallejonagera.xyz";
     };
-    accounts.proton = {
-      # enable = false;
-      address = "boscovn@protonmail.com";
-      imap.host = "127.0.0.1";
-      imap.port = 1143;
-      imap.tls.enable = false;
-      mbsync = {
-        enable = false;
-        create = "maildir";
-      };
-      # msmtp.enable = true;
-      notmuch.enable = true;
-      aerc.enable = false;
-      # primary = true;
-      realName = "Bosco Vallejo-Nágera";
-      passwordCommand = "gopass show protonmailbridge";
-      # smtp = {
-      #   host = "smtp.hostinger.com";
-      # };
-      userName = "boscovn";
-    };
+    # accounts.proton = {
+    #   # enable = false;
+    #   address = "boscovn@protonmail.com";
+    #   imap.host = "127.0.0.1";
+    #   imap.port = 1143;
+    #   imap.tls.enable = false;
+    #   mbsync = {
+    #     enable = false;
+    #     create = "maildir";
+    #   };
+    #   # msmtp.enable = true;
+    #   notmuch.enable = true;
+    #   aerc.enable = false;
+    #   # primary = true;
+    #   realName = "Bosco Vallejo-Nágera";
+    #   passwordCommand = "gopass show protonmailbridge";
+    #   # smtp = {
+    #   #   host = "smtp.hostinger.com";
+    #   # };
+    #   userName = "boscovn";
+    # };
   };
   programs.notmuch = {
     enable = true;
