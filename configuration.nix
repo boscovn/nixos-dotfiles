@@ -88,6 +88,7 @@
       "adbusers"
       "docker"
       "networkmanager"
+      "video"
       "wheel"
     ];
     shell = pkgs.zsh;
@@ -160,6 +161,7 @@
   };
   services.xserver.videoDrivers = [ "nvidia" ];
   hardware.nvidia.modesetting.enable = true;
+  hardware.nvidia.open = true;
   hardware.nvidia.prime = {
     offload = {
       enable = true;
@@ -168,5 +170,5 @@
     intelBusId = "PCI:0:2:0";
     nvidiaBusId = "PCI:1:0:0";
   };
-  users.users.bosco.extraGroups = [ "video" ];
+  # users.users.bosco.extraGroups = [ "video" ];
 }
