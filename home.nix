@@ -10,7 +10,7 @@
     ./modules/wayland
     ./modules/nixvim
     ./modules/shell
-    ./modules/email
+    # ./modules/email
   ];
   home.username = "bosco";
   home.homeDirectory = "/home/bosco";
@@ -20,6 +20,7 @@
     corefonts
     devenv
     gcr
+    gemini-cli
     kdePackages.dolphin
     liberation_ttf
     onlyoffice-desktopeditors
