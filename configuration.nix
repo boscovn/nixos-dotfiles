@@ -99,7 +99,7 @@
   # services.sddm.enable = true;
   # services.sddm.wayland.enable = true;
   # TODO: fix it, make the keyring work
-  services.gnome.gnome-keyring.enable = false;
+  services.gnome.gnome-keyring.enable = true;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
