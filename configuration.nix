@@ -95,9 +95,9 @@
     # packages = with pkgs; [ ];
   };
 
-  # Enable automatic login for the user.
-  # TODO: remove getty to use a display manager
-  services.getty.autologinUser = "bosco";
+  # Enable the SDDM display manager for a proper Wayland session.
+  # services.sddm.enable = true;
+  # services.sddm.wayland.enable = true;
   # TODO: fix it, make the keyring work
   services.gnome.gnome-keyring.enable = false;
 
@@ -150,7 +150,7 @@
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "24.05"; # Did you read the comment?
   programs.hyprland.enable = true;
-  # programs.hyprland.withUWSM = true;
+  programs.hyprland.withUWSM = true;
   security.rtkit.enable = true;
   # Todo polkit
   services.pipewire = {

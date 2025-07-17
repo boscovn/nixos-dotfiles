@@ -12,6 +12,7 @@
   ];
   programs.nixvim = {
     enable = true;
+    vimAlias = true;
     globals.mapleader = " ";
     opts = {
       relativenumber = true;

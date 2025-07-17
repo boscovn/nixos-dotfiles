@@ -21,6 +21,7 @@
     devenv
     gcr
     gemini-cli
+    jq
     kdePackages.dolphin
     liberation_ttf
     onlyoffice-desktopeditors
