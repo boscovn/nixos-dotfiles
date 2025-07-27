@@ -10,7 +10,7 @@
     ./modules/wayland
     ./modules/nixvim
     ./modules/shell
-    # ./modules/email
+    ./modules/email
   ];
   home.username = "bosco";
   home.homeDirectory = "/home/bosco";
