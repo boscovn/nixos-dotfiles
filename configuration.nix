@@ -96,14 +96,15 @@
   };
 
   # TODO: fix it, make the keyring work
-  # services.greetd.enable = true;
-  # services.greetd.settings = {
-  #   default_session = {
-  #     command = "${pkgs.greetd.greetd}/bin/agreety --cmd uwsm start default";
-  #   };
-  # };
-  # security.pam.services.greetd.enableGnomeKeyring = true;
-  # services.gnome.gnome-keyring.enable = true;
+  services.greetd.enable = true;
+  services.greetd.settings = {
+    default_session = {
+      command = "${pkgs.cage}/bin/cage -s -- gtkgreet";
+      user = "greeter";
+    };
+  };
+  security.pam.services.greetd.enableGnomeKeyring = true;
+  services.gnome.gnome-keyring.enable = true;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
