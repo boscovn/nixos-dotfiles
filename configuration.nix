@@ -95,11 +95,15 @@
     # packages = with pkgs; [ ];
   };
 
-  # Enable the SDDM display manager for a proper Wayland session.
-  # services.sddm.enable = true;
-  # services.sddm.wayland.enable = true;
   # TODO: fix it, make the keyring work
-  services.gnome.gnome-keyring.enable = true;
+  # services.greetd.enable = true;
+  # services.greetd.settings = {
+  #   default_session = {
+  #     command = "${pkgs.greetd.greetd}/bin/agreety --cmd uwsm start default";
+  #   };
+  # };
+  # security.pam.services.greetd.enableGnomeKeyring = true;
+  # services.gnome.gnome-keyring.enable = true;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;

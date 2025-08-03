@@ -21,6 +21,7 @@
       servers = {
         gopls.enable = true;
         nixd.enable = true;
+        zls.enable = true;
         clangd.enable = true;
       };
     };
