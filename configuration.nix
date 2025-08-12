@@ -96,14 +96,14 @@
   };
 
   # TODO: fix it, make the keyring work
-  # services.greetd.enable = true;
-  # services.greetd.settings = {
-  #   default_session = {
-  #     command = "${pkgs.cage}/bin/cage -s -- gtkgreet";
-  #     user = "greeter";
-  #   };
-  # };
-  # security.pam.services.greetd.enableGnomeKeyring = true;
+  services.greetd.enable = true;
+  services.greetd.settings = {
+    default_session = {
+      command = "${pkgs.cage}/bin/cage -s -- ${pkgs.greetd.gtkgreet}/bin/gtkgreet";
+      user = "greeter";
+    };
+  };
+  security.pam.services.greetd.enableGnomeKeyring = true;
   services.gnome.gnome-keyring.enable = true;
 
   # Allow unfree packages
@@ -166,7 +166,7 @@
   };
   services.xserver.videoDrivers = [ "nvidia" ];
   hardware.nvidia.modesetting.enable = true;
-  hardware.nvidia.open = true;
+  hardware.nvidia.open = false;
   hardware.nvidia.prime = {
     offload = {
       enable = true;

@@ -36,8 +36,8 @@
         lspBufAction = "definition";
       }
       {
-        key = "gr";
-        lspBufAction = "<cmd>Telescope lsp_references<CR>";
+        key = "grr";
+        action = "<cmd>Telescope lsp_references<CR>";
       }
       {
         key = "gt";
@@ -56,7 +56,7 @@
       #   key = "<leader>k";
       # }
       # {
-      #   action = lib.nixvim.mkRaw "function() vim.diagnostic.jump({ count=1, float=true }) end";
+      #   action = lib.nixvim.mkRaw /*lua*/"function() vim.diagnostic.jump({ count=1, float=true }) end";
       #   key = "<leader>j";
       # }
       {

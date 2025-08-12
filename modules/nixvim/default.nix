@@ -7,7 +7,7 @@
 }:
 {
   imports = [
-    inputs.nixvim.homeManagerModules.nixvim
+    inputs.nixvim.homeModules.nixvim
     ./keymaps.nix
   ];
   programs.nixvim = {
@@ -30,7 +30,12 @@
       lsp.enable = true;
       oil.enable = true;
       otter.enable = true;
-      snacks.enable = true;
+      snacks = {
+        enable = true;
+        settings = {
+          input.enabled = true;
+        };
+      };
       telescope.enable = true;
       web-devicons.enable = true;
       treesitter = {

@@ -18,33 +18,32 @@
     "$terminal" = "${pkgs.ghostty}";
     "$menu" = "${pkgs.fuzzel}";
     monitor = ",preffered,auto,auto";
-    bind =
-      [
-        "$mod, F, fullscreen,"
-        "$mod, Q, killactive,"
-        "$mod, h, movefocus, l"
-        "$mod, l, movefocus, r"
-        "$mod, j, movefocus, d"
-        "$mod, k, movefocus, u"
-        "$mod, S, togglespecialworkspace, magic"
-        "$mod SHIFT, S, movetoworkspace, special:magic"
-      ]
-      ++ (
-        # workspaces
-        # binds $mod + [shift +] {1..9} to [move to] workspace {1..9}
-        builtins.concatLists (
-          builtins.genList (
-            i:
-            let
-              ws = i + 1;
-            in
-            [
-              "$mod, code:1${toString i}, workspace, ${toString ws}"
-              "$mod SHIFT, code:1${toString i}, movetoworkspace, ${toString ws}"
-            ]
-          ) 9
-        )
-      );
+    bind = [
+      "$mod, F, fullscreen,"
+      "$mod, Q, killactive,"
+      "$mod, h, movefocus, l"
+      "$mod, l, movefocus, r"
+      "$mod, j, movefocus, d"
+      "$mod, k, movefocus, u"
+      "$mod, S, togglespecialworkspace, magic"
+      "$mod SHIFT, S, movetoworkspace, special:magic"
+    ]
+    ++ (
+      # workspaces
+      # binds $mod + [shift +] {1..9} to [move to] workspace {1..9}
+      builtins.concatLists (
+        builtins.genList (
+          i:
+          let
+            ws = i + 1;
+          in
+          [
+            "$mod, code:1${toString i}, workspace, ${toString ws}"
+            "$mod SHIFT, code:1${toString i}, movetoworkspace, ${toString ws}"
+          ]
+        ) 9
+      )
+    );
     bindm = [
       "$mod, mouse:272, movewindow"
       "$mod, mouse:273, resizewindow"
