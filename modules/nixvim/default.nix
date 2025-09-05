@@ -19,10 +19,11 @@
     };
     lsp = {
       servers = {
+        clangd.enable = true;
         gopls.enable = true;
         nixd.enable = true;
+        yamlls.enable = true;
         zls.enable = true;
-        clangd.enable = true;
       };
     };
     colorschemes.tokyonight.enable = true;
@@ -46,6 +47,10 @@
         };
       };
       which-key.enable = true;
+      schemastore = {
+        enable = true;
+        yaml.enable = true;
+      };
       luasnip.enable = true;
       dap.enable = true;
       dap-ui.enable = true;
