@@ -15,6 +15,12 @@
   home.username = "bosco";
   home.homeDirectory = "/home/bosco";
   home.stateVersion = "24.05";
+  xdg.mimeApps = {
+    enable = true;
+    defaultApplications = {
+      "application/pdf" = [ "org.pwmt.zathura.desktop" ];
+    };
+  };
   home.packages = with pkgs; [
 
     corefonts
@@ -41,6 +47,7 @@
     };
   };
   programs.gpg.enable = true;
+  programs.imv.enable = true;
   services.gpg-agent = {
     enable = true;
     pinentry.package = pkgs.pinentry-gnome3;
