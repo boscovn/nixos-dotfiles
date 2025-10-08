@@ -14,6 +14,7 @@
     history.size = 10000;
     shellAliases = {
       reb = "sudo nixos-rebuild switch --flake ~/.dotfiles#thinkpad";
+      ls = "${pkgs.eza}/bin/eza";
     };
   };
   programs.bash = {

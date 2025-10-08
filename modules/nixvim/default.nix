@@ -23,7 +23,7 @@
         gopls.enable = true;
         nixd.enable = true;
         yamlls.enable = true;
-        json.enable = true;
+        jsonls.enable = true;
         zls.enable = true;
       };
     };
