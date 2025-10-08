@@ -26,6 +26,7 @@
       };
       compose = {
         file-picker-cmd = "${pkgs.yazi}/bin/yazi --chooser-file %f";
+        address-book-cmd = "${pkgs.notmuch}/bin/notmuch address %s";
       };
       filters = {
         "text/plain" = "${pkgs.aerc}/libexec/aerc/filters/colorize";
@@ -89,6 +90,9 @@
     enable = true;
     hooks = {
       preNew = "mbsync --all";
+      postNew = ''
+        		notmuch tag +money -- tag:new to:fin.outlying285@simplelogin.com
+        		'';
     };
   };
 }
