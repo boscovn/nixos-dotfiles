@@ -38,7 +38,7 @@
         "message/delivery-status" = "${pkgs.aerc}/libexec/aerc/filters/colorize";
         "message/rfc822" = "${pkgs.aerc}/libexec/aerc/filters/colorize";
         "application/x-sh" = "${pkgs.bat}/bin/bat -fP -l sh";
-        "application/pdf" = "${pkgs.poppler_utils}/bin/pdftotext - -layout -nopgbrk -q -";
+        "application/pdf" = "${pkgs.poppler-utils}/bin/pdftotext - -layout -nopgbrk -q -";
         # "audio/*" = "${pkgs.mpv}/bin/mpv -";
         # "image/*" = "${pkgs.feh}/bin/feh -";
       };
