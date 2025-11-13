@@ -8,6 +8,7 @@
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
+    ./modules/desktop
   ];
   stylix.enable = true;
   stylix.base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
@@ -22,7 +23,7 @@
   virtualisation.docker.enable = true;
   programs.kdeconnect.enable = true;
   services.fwupd.enable = true;
-  services.mullvad-vpn.enable = true;
+  # services.mullvad-vpn.enable = true;
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -104,7 +105,6 @@
   #   };
   # };
   # security.pam.services.greetd.enableGnomeKeyring = true;
-  security.pam.services.login.enableGnomeKeyring = true;
   services.gnome.gnome-keyring.enable = true;
 
   # Allow unfree packages
@@ -155,8 +155,6 @@
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "24.05"; # Did you read the comment?
-  programs.hyprland.enable = true;
-  programs.hyprland.withUWSM = true;
   security.rtkit.enable = true;
   # Todo polkit
   services.pipewire = {
