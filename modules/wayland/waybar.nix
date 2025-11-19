@@ -59,7 +59,7 @@
           ];
         };
         "scroll-step" = 1;
-        "on-click" = "${pkgs.pavucontrol}/bin/pavucontrol";
+        "on-click" = "${pkgs.pwvucontrol}/bin/pwvucontrol";
       };
     };
   };
