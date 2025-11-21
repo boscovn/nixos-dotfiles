@@ -127,6 +127,7 @@
     ripgrep
     trashy
     wget
+    v4l-utils
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
