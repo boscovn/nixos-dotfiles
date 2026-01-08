@@ -81,7 +81,6 @@
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   programs.zsh.enable = true;
-  programs.adb.enable = true;
   users.users.bosco = {
     isNormalUser = true;
     description = "Bosco";
@@ -106,6 +105,7 @@
   # };
   # security.pam.services.greetd.enableGnomeKeyring = true;
   services.gnome.gnome-keyring.enable = true;
+  security.pki.certificates = [ (builtins.readFile ./certs/pimps.crt) ];
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
@@ -115,6 +115,7 @@
   environment.systemPackages = with pkgs; [
     bat
     fd
+    android-tools
     delve
     firefox
     foot
