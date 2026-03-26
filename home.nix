@@ -22,6 +22,7 @@
     };
   };
   home.packages = with pkgs; [
+    claude-code
 
     corefonts
     devenv

@@ -113,10 +113,10 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    bat
-    fd
     android-tools
+    bat
     delve
+    fd
     firefox
     foot
     ghostty
@@ -125,10 +125,13 @@
     gopass-jsonapi
     gopls
     hyprlock
+    opensc
+    pcsc-tools
     ripgrep
     trashy
-    wget
+    usbutils
     v4l-utils
+    wget
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
