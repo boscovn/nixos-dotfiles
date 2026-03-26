@@ -2,28 +2,30 @@
   config,
   pkgs,
   inputs,
-  lib,
+  user,
   ...
 }:
 {
   imports = [
-    ./modules/wayland
-    ./modules/nixvim
-    ./modules/shell
-    ./modules/email
+    ./wayland
+    ./nixvim
+    ./shell
+    ./email
   ];
-  home.username = "bosco";
-  home.homeDirectory = "/home/bosco";
+
+  home.username = user;
+  home.homeDirectory = "/home/${user}";
   home.stateVersion = "24.05";
+
   xdg.mimeApps = {
     enable = true;
     defaultApplications = {
       "application/pdf" = [ "org.pwmt.zathura.desktop" ];
     };
   };
+
   home.packages = with pkgs; [
     claude-code
-
     corefonts
     devenv
     gcr
@@ -36,6 +38,7 @@
     telegram-desktop
     vista-fonts
   ];
+
   fonts.fontconfig.enable = true;
   programs.gh.enable = true;
   programs.zathura.enable = true;
@@ -44,7 +47,6 @@
     scripts = [ pkgs.mpvScripts.mpris ];
     config = {
       save-position-on-quit = true;
-
     };
   };
   programs.gpg.enable = true;

@@ -1,5 +1,25 @@
 { pkgs, ... }:
 {
+  imports = [
+    ./waybar.nix
+    ./hypridle.nix
+  ];
+  home.packages = with pkgs; [
+    wl-clipboard
+    grim
+    slurp
+  ];
+  home.sessionVariables = {
+    NIXOS_OZONE_WL = "1";
+    QT_QPA_PLATFORM = "wayland";
+  };
+  services.hyprpolkitagent.enable = true;
+  services.swaync.enable = true;
+  programs.fuzzel.enable = true;
+  programs.ghostty = {
+    enable = true;
+    enableZshIntegration = true;
+  };
   wayland.windowManager.hyprland = {
     enable = true;
     package = null;
@@ -29,8 +49,6 @@
       "$mod SHIFT, S, movetoworkspace, special:magic"
     ]
     ++ (
-      # workspaces
-      # binds $mod + [shift +] {1..9} to [move to] workspace {1..9}
       builtins.concatLists (
         builtins.genList (
           i:

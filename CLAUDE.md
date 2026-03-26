@@ -4,12 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is a NixOS + Home Manager dotfiles repository for a single machine ("thinkpad", x86_64-linux). Everything is declarative — system config, user environment, desktop, editor, shell, and email.
+NixOS + Home Manager dotfiles for a ThinkPad (x86_64-linux). Everything is declarative. The structure follows a dendritic pattern: shared modules branch out from a common root, and host directories contain only machine-specific config.
 
 ## Key Commands
 
 ```bash
-# Rebuild and switch the system (aliased as `reb` in zsh)
+# Rebuild and switch (also aliased as `reb` in zsh)
 sudo nixos-rebuild switch --flake ~/.dotfiles#thinkpad
 
 # Format all Nix files
@@ -21,23 +21,54 @@ nix flake check
 
 ## Architecture
 
-### Entry Points
-- **`flake.nix`** — Root. Defines inputs (nixpkgs unstable, home-manager, nixvim, stylix, treefmt-nix) and a single NixOS system output: `nixosConfigurations.thinkpad`.
-- **`configuration.nix`** — NixOS system-level config. Imports `hardware-configuration.nix` and `modules/desktop`. Configures display manager (SDDM/Hyprland), Intel+Nvidia hybrid GPU, audio (PipeWire), Docker, boot, locale, and system packages.
-- **`home.nix`** — Home Manager config for user `bosco`. Imports `modules/wayland`, `modules/nixvim`, `modules/shell`, `modules/email`. Manages user packages and program config.
+### Entry Point
 
-### Modules
-- **`modules/desktop/`** — NixOS-level desktop: SDDM display manager, Hyprland + UWSM, GNOME Keyring integration.
-- **`modules/wayland/`** — Home Manager Wayland stack: Hyprland config (keybinds, gaps, layout), Waybar, hypridle, fuzzel launcher, ghostty terminal, screenshot tools (grim/slurp), swaync notifications.
-- **`modules/nixvim/`** — Neovim via nixvim. LSP (gopls, nixd, clangd, yamlls, jsonls, zls), treesitter, telescope, oil, cmp, DAP. Keymaps in `keymaps.nix`. Mapleader = Space.
-- **`modules/shell/`** — Zsh with autosuggestions, syntax highlighting, starship prompt, zoxide, atuin history. Bash also enabled.
-- **`modules/email/`** — aerc mail client, mbsync + msmtp for IMAP/SMTP, notmuch for indexing, gopass for credentials. Account: bosco@vallejonagera.xyz (Hostinger).
+**`flake.nix`** defines inputs and a `mkSystem` helper:
+```nix
+mkSystem { hostname = "thinkpad"; }
+# Optional overrides:
+mkSystem { hostname = "desktop"; system = "x86_64-linux"; user = "bosco"; }
+```
+Each host gets: `stylix` + `modules/nixos/common.nix` + `hosts/<hostname>` for the NixOS config, and `modules/home` as the Home Manager config (with `inputs`, `hostname`, and `user` passed as special args to both).
 
-### Theming
-Stylix applies Catppuccin Mocha theme system-wide (terminal, applications, SDDM). Font: FiraCode Nerd Font. Terminal opacity: 0.8.
+### Adding a New Host
 
-### Split Between `configuration.nix` and `home.nix`
-- `configuration.nix` — system packages, hardware, services, display manager, NixOS options
-- `home.nix` — user packages, dotfiles/program configs via Home Manager options
+1. Create `hosts/<hostname>/default.nix` — set `networking.hostName`, import `./hardware-configuration.nix` and any hardware profiles from `modules/nixos/hardware/`
+2. Add the auto-generated `hosts/<hostname>/hardware-configuration.nix`
+3. Register in `flake.nix`: `nixosConfigurations.<hostname> = mkSystem { hostname = "<hostname>"; };`
 
-When adding something new: if it requires root/system-level access or is a system service, it goes in `configuration.nix` (or a `modules/desktop/` submodule). If it's user-space config or a user program, it goes in `home.nix` (or an appropriate `modules/` submodule).
+### Module Tree
+
+```
+modules/
+├── nixos/
+│   ├── common.nix          # Shared system config: boot, locale, user, audio, packages
+│   ├── desktop/            # SDDM display manager + Hyprland (NixOS-level)
+│   └── hardware/
+│       └── nvidia.nix      # Intel+Nvidia hybrid GPU (offload mode)
+└── home/
+    ├── default.nix         # Shared Home Manager config for the user
+    ├── wayland/            # Hyprland WM config, Waybar, hypridle, fuzzel, ghostty
+    ├── nixvim/             # Neovim via nixvim (LSP, DAP, telescope, cmp, keymaps)
+    ├── shell/              # Zsh, bash, starship, zoxide, atuin
+    └── email/              # aerc, mbsync, msmtp, notmuch, gopass
+
+hosts/
+└── thinkpad/
+    ├── default.nix         # hostname, nvidia.nix import, thinkpad-specific packages
+    └── hardware-configuration.nix
+```
+
+### NixOS vs Home Manager Split
+
+- `modules/nixos/` — system services, hardware, display manager, boot, kernel, system packages
+- `modules/home/` — user programs, dotfiles, user services, user packages
+
+When adding something: if it needs root or is a system service → `modules/nixos/` (or the host). If it's user-space config → `modules/home/`.
+
+### Special Args
+
+Both NixOS (`specialArgs`) and Home Manager (`extraSpecialArgs`) receive:
+- `inputs` — flake inputs (needed by `modules/home/nixvim` for `inputs.nixvim.homeModules.nixvim`)
+- `hostname` — used in the `reb` shell alias in `modules/home/shell`
+- `user` — username string, used in `modules/nixos/common.nix` for `users.users.${user}` and in `modules/home/default.nix` for `home.username`

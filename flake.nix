@@ -1,5 +1,5 @@
 {
-  description = "A very basic flake";
+  description = "NixOS configuration";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -21,39 +21,52 @@
       nixpkgs,
       home-manager,
       treefmt-nix,
-      systems,
       nixvim,
       stylix,
+      ...
     }@inputs:
     let
-      # Small tool to iterate over each systems
-      eachSystem = f: nixpkgs.lib.genAttrs (import systems) (system: f nixpkgs.legacyPackages.${system});
+      eachSystem = nixpkgs.lib.genAttrs [
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
+      treefmtEval = eachSystem (
+        system: treefmt-nix.lib.evalModule nixpkgs.legacyPackages.${system} ./treefmt.nix
+      );
 
-      # Eval the treefmt modules from ./treefmt.nix
-      treefmtEval = eachSystem (pkgs: treefmt-nix.lib.evalModule pkgs ./treefmt.nix);
+      mkSystem =
+        {
+          hostname,
+          system ? "x86_64-linux",
+          user ? "bosco",
+        }:
+        nixpkgs.lib.nixosSystem {
+          inherit system;
+          specialArgs = { inherit inputs hostname user; };
+          modules = [
+            stylix.nixosModules.stylix
+            ./modules/nixos/common.nix
+            ./hosts/${hostname}
+            home-manager.nixosModules.home-manager
+            {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.users.${user} = import ./modules/home;
+              home-manager.extraSpecialArgs = { inherit inputs hostname user; };
+            }
+          ];
+        };
     in
     {
-      formatter = eachSystem (pkgs: treefmtEval.${pkgs.system}.config.build.wrapper);
-      # for `nix flake check`
-      checks = eachSystem (pkgs: {
-        formatting = treefmtEval.${pkgs.system}.config.build.check self;
+      formatter = eachSystem (system: treefmtEval.${system}.config.build.wrapper);
+      checks = eachSystem (system: {
+        formatting = treefmtEval.${system}.config.build.check self;
       });
-      nixosConfigurations.thinkpad = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        modules = [
-          stylix.nixosModules.stylix
-          ./configuration.nix
-          home-manager.nixosModules.home-manager
-          {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.users.bosco = import ./home.nix;
-            home-manager.extraSpecialArgs = { inherit inputs; };
-          }
-          # stylix.nixosModules.stylix
-        ];
 
+      nixosConfigurations = {
+        thinkpad = mkSystem { hostname = "thinkpad"; };
+        # Example: adding another machine is one line:
+        # desktop = mkSystem { hostname = "desktop"; system = "x86_64-linux"; };
       };
-
     };
 }

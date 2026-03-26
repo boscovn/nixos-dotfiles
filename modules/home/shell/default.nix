@@ -1,11 +1,5 @@
+{ pkgs, hostname, ... }:
 {
-  config,
-  pkgs,
-  inputs,
-  ...
-}:
-{
-
   programs.zsh = {
     enable = true;
     enableCompletion = true;
@@ -13,7 +7,7 @@
     syntaxHighlighting.enable = true;
     history.size = 10000;
     shellAliases = {
-      reb = "sudo nixos-rebuild switch --flake ~/.dotfiles#thinkpad";
+      reb = "sudo nixos-rebuild switch --flake ~/.dotfiles#${hostname}";
       ls = "${pkgs.eza}/bin/eza";
     };
   };

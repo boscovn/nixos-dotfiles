@@ -1,9 +1,4 @@
-{
-  pkgs,
-  lib,
-  config,
-  ...
-}:
+{ pkgs, config, lib, ... }:
 {
   home.packages = with pkgs; [ hydroxide ];
   programs.mbsync.enable = true;
@@ -32,15 +27,11 @@
         "text/plain" = "${pkgs.aerc}/libexec/aerc/filters/colorize";
         "text/calendar" = "${pkgs.gawk}/bin/awk -f ${pkgs.aerc}/libexec/aerc/filters/calendar";
         "text/html" =
-          "${pkgs.aerc}/libexec/aerc/filters/html | ${pkgs.aerc}/libexec/aerc/filters/colorize"; # Requires w3m, dante
-        # "text/*" =
-        #   ''${pkgs.bat}/bin/bat -fP --file-name="$AERC_FILENAME "'';
+          "${pkgs.aerc}/libexec/aerc/filters/html | ${pkgs.aerc}/libexec/aerc/filters/colorize";
         "message/delivery-status" = "${pkgs.aerc}/libexec/aerc/filters/colorize";
         "message/rfc822" = "${pkgs.aerc}/libexec/aerc/filters/colorize";
         "application/x-sh" = "${pkgs.bat}/bin/bat -fP -l sh";
         "application/pdf" = "${pkgs.poppler-utils}/bin/pdftotext - -layout -nopgbrk -q -";
-        # "audio/*" = "${pkgs.mpv}/bin/mpv -";
-        # "image/*" = "${pkgs.feh}/bin/feh -";
       };
     };
   };
@@ -64,28 +55,8 @@
       };
       userName = "bosco@vallejonagera.xyz";
     };
-    # accounts.proton = {
-    #   # enable = false;
-    #   address = "boscovn@protonmail.com";
-    #   imap.host = "127.0.0.1";
-    #   imap.port = 1143;
-    #   imap.tls.enable = false;
-    #   mbsync = {
-    #     enable = false;
-    #     create = "maildir";
-    #   };
-    #   # msmtp.enable = true;
-    #   notmuch.enable = true;
-    #   aerc.enable = false;
-    #   # primary = true;
-    #   realName = "Bosco Vallejo-Nágera";
-    #   passwordCommand = "gopass show protonmailbridge";
-    #   # smtp = {
-    #   #   host = "smtp.hostinger.com";
-    #   # };
-    #   userName = "boscovn";
-    # };
   };
+
   programs.notmuch = {
     enable = true;
     hooks = {

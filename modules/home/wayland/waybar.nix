@@ -1,9 +1,4 @@
-{
-  config,
-  pkgs,
-  inputs,
-  ...
-}:
+{ pkgs, ... }:
 {
   programs.waybar.enable = true;
   programs.waybar.systemd.enable = true;
@@ -37,25 +32,25 @@
       };
       temperature = {
         critical-threshold = 50;
-        format = " {temperatureC}°C";
+        format = " {temperatureC}°C";
       };
       pulseaudio = {
         "format" = "{volume}% {icon}";
-        "format-bluetooth" = "{volume}% {icon}";
-        "format-muted" = "";
+        "format-bluetooth" = "{volume}% {icon}";
+        "format-muted" = "";
         "format-icons" = {
-          "alsa_output.pci-0000_00_1f.3.analog-stereo" = "";
-          "alsa_output.pci-0000_00_1f.3.analog-stereo-muted" = "";
-          "headphones" = "";
-          "handsfree" = "";
-          "headset" = "";
-          "phone" = "";
-          "phone-muted" = "";
-          "portable" = "";
-          "car" = "";
+          "alsa_output.pci-0000_00_1f.3.analog-stereo" = "";
+          "alsa_output.pci-0000_00_1f.3.analog-stereo-muted" = "";
+          "headphones" = "";
+          "handsfree" = "";
+          "headset" = "";
+          "phone" = "";
+          "phone-muted" = "";
+          "portable" = "";
+          "car" = "";
           "default" = [
-            ""
-            ""
+            ""
+            ""
           ];
         };
         "scroll-step" = 1;

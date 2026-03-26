@@ -1,13 +1,6 @@
-{
-  config,
-  pkgs,
-  inputs,
-  lib,
-  ...
-}:
+{ lib, ... }:
 {
   programs.nixvim = {
-
     keymaps = [
       {
         action = "<cmd>Oil<CR>";
@@ -30,7 +23,6 @@
       }
     ];
     lsp.keymaps = [
-
       {
         key = "gd";
         lspBufAction = "definition";
@@ -51,14 +43,6 @@
         key = "K";
         lspBufAction = "hover";
       }
-      # {
-      #   action = lib.nixvim.mkRaw "function() vim.diagnostic.jump({ count=-1, float=true }) end";
-      #   key = "<leader>k";
-      # }
-      # {
-      #   action = lib.nixvim.mkRaw /*lua*/"function() vim.diagnostic.jump({ count=1, float=true }) end";
-      #   key = "<leader>j";
-      # }
       {
         action = "<CMD>LspStop<Enter>";
         key = "<leader>lx";
@@ -71,14 +55,6 @@
         action = "<CMD>LspRestart<Enter>";
         key = "<leader>lr";
       }
-      # {
-      #   action = lib.nixvim.mkRaw "require('telescope.builtin').lsp_definitions";
-      #   key = "gd";
-      # }
-      # {
-      #   action = "<CMD>Lsp hover_doc<Enter>";
-      #   key = "K";
-      # }
     ];
     plugins.cmp.settings.mapping = {
       "<C-d>" = "cmp.mapping.scroll_docs(-4)";

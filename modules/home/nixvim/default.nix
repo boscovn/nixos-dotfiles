@@ -1,6 +1,4 @@
 {
-  config,
-  pkgs,
   inputs,
   lib,
   ...
@@ -65,7 +63,6 @@
       cmp = {
         enable = true;
         autoEnableSources = true;
-        # settings.mapping =
         settings.sources = [
           { name = "nvim_lsp"; }
           { name = "path"; }
@@ -73,7 +70,6 @@
           { name = "luasnip"; }
         ];
       };
-
     };
   };
 }
