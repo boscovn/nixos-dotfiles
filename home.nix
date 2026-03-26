@@ -56,7 +56,9 @@
   programs.yazi.enable = true;
   programs.git = {
     enable = true;
-    userName = "Bosco Vallejo-Nágera";
-    userEmail = "bosco@vallejonagera.xyz";
+    settings = {
+      user.name = "Bosco Vallejo-Nágera";
+      user.email = "bosco@vallejonagera.xyz";
+    };
   };
 }
