@@ -105,7 +105,10 @@
   # };
   # security.pam.services.greetd.enableGnomeKeyring = true;
   services.gnome.gnome-keyring.enable = true;
-  security.pki.certificates = [ (builtins.readFile ./certs/pimps.crt) ];
+  security.pki.certificates = [
+    (builtins.readFile ./certs/pimps.crt)
+    (builtins.readFile ./certs/pimps.crt)
+  ];
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
