@@ -87,44 +87,41 @@
         sensitivity = -0.5;
       };
 
-      bind =
-        [
-          "$mainMod, Return, exec, $terminal"
-          "$mainMod, N, exec, swaync-client -op"
-          "$mainMod, Q, killactive,"
-          "$mainMod, Shift Q, fullscreen"
-          "$mainMod, F, fullscreen,"
-          "$mainMod, E, exec, $fileManager"
-          "$mainMod, V, togglefloating,"
-          "$mainMod, D, exec, $menu"
-          "$mainMod, Escape, exec, hyprlock"
-          "$mainMod, P, pseudo,"
-          "$mainMod, M, togglesplit,"
-          "$mainMod, h, movefocus, l"
-          "$mainMod, l, movefocus, r"
-          "$mainMod, j, movefocus, d"
-          "$mainMod, k, movefocus, u"
-          "$mainMod, S, togglespecialworkspace, magic"
-          "$mainMod SHIFT, S, movetoworkspace, special:magic"
-          "$mainMod, mouse_down, workspace, e+1"
-          "$mainMod, mouse_up, workspace, e-1"
-          "$mainMod, 0, workspace, 10"
-          "$mainMod SHIFT, 0, movetoworkspace, 10"
-        ]
-        ++ (
-          builtins.concatLists (
-            builtins.genList (
-              i:
-              let
-                ws = i + 1;
-              in
-              [
-                "$mainMod, ${toString ws}, workspace, ${toString ws}"
-                "$mainMod SHIFT, ${toString ws}, movetoworkspace, ${toString ws}"
-              ]
-            ) 9
-          )
-        );
+      bind = [
+        "$mainMod, Return, exec, $terminal"
+        "$mainMod, N, exec, swaync-client -op"
+        "$mainMod, Q, killactive,"
+        "$mainMod, Shift Q, fullscreen"
+        "$mainMod, F, fullscreen,"
+        "$mainMod, E, exec, $fileManager"
+        "$mainMod, V, togglefloating,"
+        "$mainMod, D, exec, $menu"
+        "$mainMod, Escape, exec, hyprlock"
+        "$mainMod, P, pseudo,"
+        "$mainMod, M, togglesplit,"
+        "$mainMod, h, movefocus, l"
+        "$mainMod, l, movefocus, r"
+        "$mainMod, j, movefocus, d"
+        "$mainMod, k, movefocus, u"
+        "$mainMod, S, togglespecialworkspace, magic"
+        "$mainMod SHIFT, S, movetoworkspace, special:magic"
+        "$mainMod, mouse_down, workspace, e+1"
+        "$mainMod, mouse_up, workspace, e-1"
+        "$mainMod, 0, workspace, 10"
+        "$mainMod SHIFT, 0, movetoworkspace, 10"
+      ]
+      ++ (builtins.concatLists (
+        builtins.genList (
+          i:
+          let
+            ws = i + 1;
+          in
+          [
+            "$mainMod, ${toString ws}, workspace, ${toString ws}"
+            "$mainMod SHIFT, ${toString ws}, movetoworkspace, ${toString ws}"
+          ]
+        ) 9
+      ));
 
       bindm = [
         "$mainMod, mouse:272, movewindow"

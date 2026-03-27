@@ -1,4 +1,9 @@
-{ pkgs, config, lib, ... }:
+{
+  pkgs,
+  config,
+  lib,
+  ...
+}:
 {
   home.packages = with pkgs; [ hydroxide ];
   programs.mbsync.enable = true;
@@ -26,8 +31,7 @@
       filters = {
         "text/plain" = "${pkgs.aerc}/libexec/aerc/filters/colorize";
         "text/calendar" = "${pkgs.gawk}/bin/awk -f ${pkgs.aerc}/libexec/aerc/filters/calendar";
-        "text/html" =
-          "${pkgs.aerc}/libexec/aerc/filters/html | ${pkgs.aerc}/libexec/aerc/filters/colorize";
+        "text/html" = "${pkgs.aerc}/libexec/aerc/filters/html | ${pkgs.aerc}/libexec/aerc/filters/colorize";
         "message/delivery-status" = "${pkgs.aerc}/libexec/aerc/filters/colorize";
         "message/rfc822" = "${pkgs.aerc}/libexec/aerc/filters/colorize";
         "application/x-sh" = "${pkgs.bat}/bin/bat -fP -l sh";
