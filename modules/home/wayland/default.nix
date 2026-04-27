@@ -1,9 +1,11 @@
 { pkgs, ... }:
 {
   imports = [
-    ./waybar.nix
+    # ./waybar.nix
     ./hypridle.nix
     ./hyprland.nix
+    ./ashell.nix
+
   ];
   home.packages = with pkgs; [
     wl-clipboard

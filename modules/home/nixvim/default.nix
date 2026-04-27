@@ -1,6 +1,7 @@
 {
   inputs,
   lib,
+  pkgs,
   ...
 }:
 {
@@ -26,6 +27,7 @@
       };
     };
     colorschemes.tokyonight.enable = true;
+    extraPlugins = [ pkgs.vimPlugins.plenary-nvim ];
     plugins = {
       lsp.enable = true;
       oil.enable = true;

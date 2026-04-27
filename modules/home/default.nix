@@ -55,6 +55,23 @@
     enable = true;
     pinentry.package = pkgs.pinentry-gnome3;
   };
+
+  # GNOME Keyring control socket path is always /run/user/$UID/keyring but
+  # UWSM doesn't import GNOME_KEYRING_CONTROL from the PAM environment into
+  # the systemd user session — set it explicitly using the %U UID specifier.
+  systemd.user.services.gnome-keyring-env = {
+    Unit = {
+      Description = "Export GNOME_KEYRING_CONTROL into systemd user environment";
+      Before = [ "graphical-session-pre.target" ];
+      PartOf = [ "graphical-session-pre.target" ];
+    };
+    Service = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.systemd}/bin/systemctl --user set-environment GNOME_KEYRING_CONTROL=/run/user/%U/keyring";
+      RemainAfterExit = true;
+    };
+    Install.WantedBy = [ "graphical-session-pre.target" ];
+  };
   programs.yazi.enable = true;
   programs.git = {
     enable = true;
