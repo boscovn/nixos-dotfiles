@@ -17,6 +17,7 @@
   virtualisation.docker.enable = true;
   programs.kdeconnect.enable = true;
   services.fwupd.enable = true;
+  services.upower.enable = true;
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -104,6 +105,13 @@
   services.openssh.enable = true;
   services.openssh.settings.PasswordAuthentication = false;
   networking.firewall.allowedTCPPorts = [ 22 ];
+  powerManagement.powertop.enable = true;
+  services.tlp = {
+    enable = true;
+    settings = {
+      USB_AUTOSUSPEND = 1;
+    };
+  };
 
   system.stateVersion = "24.05";
   security.rtkit.enable = true;

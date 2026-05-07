@@ -16,6 +16,8 @@
   home.username = user;
   home.homeDirectory = "/home/${user}";
   home.stateVersion = "24.05";
+  # silence warnings
+  # gtk.gtk.theme =
 
   xdg.mimeApps = {
     enable = true;
@@ -33,6 +35,7 @@
     jq
     kdePackages.dolphin
     liberation_ttf
+    nixfmt
     onlyoffice-desktopeditors
     ouch
     telegram-desktop

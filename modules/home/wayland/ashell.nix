@@ -13,6 +13,7 @@
       ];
       right = [
         "Keyboard Layout"
+        "Battery"
         "SystemInfo"
         [
           "Clock"
@@ -22,9 +23,9 @@
       ];
     };
     workspaces = {
-      visibilityMode = "MonitorSpecific";
+      visibility_mode = "MonitorSpecific";
     };
-    windowTitle = {
+    window_title = {
       mode = "Title";
     };
   };

@@ -7,12 +7,15 @@
     syntaxHighlighting.enable = true;
     history.size = 10000;
     shellAliases = {
-      reb = "sudo nixos-rebuild switch --flake ~/.dotfiles#${hostname}";
+      reb = "sudo nixos-rebuild switch --flake ~/.dotfiles#${hostname} --impure";
       ls = "${pkgs.eza}/bin/eza";
     };
   };
   programs.bash = {
     enable = true;
+    shellAliases = {
+      reb = "sudo nixos-rebuild switch --flake ~/.dotfiles#${hostname} --impure";
+    };
   };
   programs.starship.enable = true;
   programs.zoxide.enable = true;

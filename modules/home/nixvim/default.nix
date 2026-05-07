@@ -15,6 +15,12 @@
     globals.mapleader = " ";
     opts = {
       relativenumber = true;
+      shiftwidth = 2;
+      tabstop = 2;
+      softtabstop = 2;
+      expandtab = true;
+      autoindent = true;
+      breakindent = true;
     };
     lsp = {
       servers = {
@@ -29,6 +35,7 @@
     colorschemes.tokyonight.enable = true;
     extraPlugins = [ pkgs.vimPlugins.plenary-nvim ];
     plugins = {
+      nix.enable = true;
       lsp.enable = true;
       oil.enable = true;
       otter.enable = true;
@@ -44,10 +51,22 @@
         enable = true;
         settings = {
           highlight.enable = true;
-          indent.enable = true;
+          indent.enable = false;
         };
       };
       which-key.enable = true;
+      conform-nvim = {
+        enable = true;
+        settings = {
+          format_on_save = {
+            lsp_fallback = true;
+            timeout_ms = 500;
+          };
+          formatters_by_ft = {
+            nix = [ "nixfmt" ];
+          };
+        };
+      };
       schemastore = {
         enable = true;
         yaml.enable = true;
@@ -58,9 +77,9 @@
       dap-go.enable = true;
       cmp-omni.enable = true;
       cmp-dap.enable = true;
-      cmp-nvim-lsp.enable = true;
-      cmp-nvim-lsp-document-symbol.enable = true;
-      cmp-nvim-lsp-signature-help.enable = true;
+      # cmp-nvim-lsp.enable = true;
+      # cmp-nvim-lsp-document-symbol.enable = true;
+      # cmp-nvim-lsp-signature-help.enable = true;
       cmp-dictionary.enable = true;
       cmp = {
         enable = true;
