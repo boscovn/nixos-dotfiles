@@ -11,6 +11,7 @@
     package = pkgs.nerd-fonts.fira-code;
     name = "FiraCodeNerdFont";
   };
+  stylix.image = ./../../gnus.JPG;
 
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;
