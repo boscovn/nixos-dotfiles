@@ -76,6 +76,7 @@
     Install.WantedBy = [ "graphical-session-pre.target" ];
   };
   programs.yazi.enable = true;
+  programs.yazi.shellWrapperName = "y";
   programs.git = {
     enable = true;
     settings = {

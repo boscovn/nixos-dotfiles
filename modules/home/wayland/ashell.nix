@@ -28,5 +28,11 @@
     window_title = {
       mode = "Title";
     };
+    keyboard_layout = {
+      labels = {
+        "Spanish" = "ES";
+        "English (US)" = "US";
+      };
+    };
   };
 }
