@@ -11,6 +11,7 @@
   ];
   programs.nixvim = {
     enable = true;
+    nixpkgs.source = inputs.nixpkgs;
     vimAlias = true;
     globals.mapleader = " ";
     opts = {
