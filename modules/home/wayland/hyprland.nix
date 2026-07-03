@@ -90,6 +90,16 @@
     #
     # };
     extraConfig = ''
+      hl.config({
+        input = {
+          kb_layout  = "es,us",
+          kb_options = "grp:alt_shift_toggle",
+          follow_mouse = 1,
+          sensitivity  = 0,
+          touchpad = { natural_scroll = false },
+        },
+      })
+
       local terminal    = "ghostty"
       local fileManager = "dolphin"
       local menu        = "fuzzel"
@@ -97,7 +107,7 @@
 
       hl.bind(mainMod .. " + Return",         hl.dsp.exec_cmd(terminal))
       hl.bind(mainMod .. " + N",              hl.dsp.exec_cmd("swaync-client -op"))
-      hl.bind(mainMod .. " + C",              hl.dsp.window.close())
+      hl.bind(mainMod .. " + Q",              hl.dsp.window.close())
       hl.bind(mainMod .. " + F",              hl.dsp.window.fullscreen())
       hl.bind(mainMod .. " + E",              hl.dsp.exec_cmd(fileManager))
       hl.bind(mainMod .. " + V",              hl.dsp.window.float({ action = "toggle" }))

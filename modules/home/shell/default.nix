@@ -9,6 +9,7 @@
     shellAliases = {
       reb = "sudo nixos-rebuild switch --flake ~/.dotfiles#${hostname} --impure";
       ls = "${pkgs.eza}/bin/eza";
+      mpv = "nvidia-offload mpv";
     };
   };
   programs.bash = {

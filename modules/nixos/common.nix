@@ -106,7 +106,9 @@
   services.openssh.enable = true;
   services.openssh.settings.PasswordAuthentication = false;
   networking.firewall.allowedTCPPorts = [ 22 ];
-  powerManagement.powertop.enable = true;
+  services.logind.settings.Login.HandleLidSwitch = "ignore";
+  services.logind.settings.Login.HandleLidSwitchExternalPower = "ignore";
+
   services.tlp = {
     enable = true;
     settings = {
