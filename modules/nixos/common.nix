@@ -81,6 +81,13 @@
     (builtins.readFile ../../certs/pim.pa.crt)
   ];
 
+  hardware.graphics.enable = true;
+  hardware.graphics.extraPackages = with pkgs; [
+    intel-media-driver
+    intel-vaapi-driver
+    libvdpau-va-gl
+  ];
+
   environment.systemPackages = with pkgs; [
     bat
     delve
@@ -93,6 +100,7 @@
     gopass-jsonapi
     gopls
     hyprlock
+    libva-utils
     opensc
     pcsc-tools
     ripgrep
