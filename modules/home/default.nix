@@ -5,6 +5,14 @@
   user,
   ...
 }:
+let
+  # Native messaging host for the Gopass Bridge extension: browsers invoke
+  # this with the extension origin as argv[1], which gopass-jsonapi's own
+  # "listen" subcommand ignores, so a thin wrapper is enough.
+  gopassJsonapiWrapper = pkgs.writeShellScript "gopass-jsonapi-wrapper" ''
+    exec ${pkgs.gopass-jsonapi}/bin/gopass-jsonapi listen
+  '';
+in
 {
   imports = [
     ./wayland
@@ -38,6 +46,7 @@
     nixfmt
     onlyoffice-desktopeditors
     ouch
+    pavucontrol
     telegram-desktop
     vista-fonts
   ];
@@ -54,6 +63,26 @@
   };
   programs.gpg.enable = true;
   programs.imv.enable = true;
+  programs.brave = {
+    enable = true;
+    commandLineArgs = [
+      "--ozone-platform=wayland"
+      "--enable-features=UseOzonePlatform"
+    ];
+    extensions = [
+      { id = "cjpalhdlnbpafiamejdnhcphjbkeiagm"; } # uBlock Origin
+      { id = "kkhfnlkhiapbiehimabddjbimfaijdhk"; } # Gopass Bridge
+    ];
+  };
+  xdg.configFile."BraveSoftware/Brave-Browser/NativeMessagingHosts/com.justwatch.gopass.json".text =
+    builtins.toJSON
+      {
+        name = "com.justwatch.gopass";
+        description = "Gopass wrapper to search and return passwords";
+        path = "${gopassJsonapiWrapper}";
+        type = "stdio";
+        allowed_origins = [ "chrome-extension://kkhfnlkhiapbiehimabddjbimfaijdhk/" ];
+      };
   services.gpg-agent = {
     enable = true;
     pinentry.package = pkgs.pinentry-gnome3;
