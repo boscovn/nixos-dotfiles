@@ -46,6 +46,24 @@
           inherit system;
           specialArgs = { inherit inputs hostname user; };
           modules = [
+            {
+              # Hyprland 0.56.1 requires glaze <8 (CMakeLists.txt: find_package(glaze 7...<8)),
+              # but nixpkgs bumped glaze to 8.0.0, breaking the build. Pin glaze back to 7.8.3
+              # until nixpkgs/Hyprland resolve the mismatch upstream.
+              # nixpkgs.overlays = [
+              #   (final: prev: {
+              #     glaze = prev.glaze.overrideAttrs (old: {
+              #       version = "7.8.3";
+              #       src = prev.fetchFromGitHub {
+              #         owner = "stephenberry";
+              #         repo = "glaze";
+              #         tag = "v7.8.3";
+              #         hash = "sha256-WqtaZ3AVDs1oIfAVQuU63eg+0753LoYfv/pRyG9OMnM=";
+              #       };
+              #     });
+              #   })
+              # ];
+            }
             stylix.nixosModules.stylix
             ./modules/nixos/common.nix
             ./hosts/${hostname}

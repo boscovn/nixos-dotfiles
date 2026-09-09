@@ -31,6 +31,7 @@
         yamlls.enable = true;
         jsonls.enable = true;
         zls.enable = true;
+        rust-analyzer.enable = true;
       };
     };
     colorschemes.tokyonight.enable = true;

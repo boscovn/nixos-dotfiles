@@ -38,7 +38,7 @@ in
     claude-code
     corefonts
     devenv
-    gcr
+    # gcr
     gemini-cli
     jq
     kdePackages.dolphin
@@ -65,10 +65,6 @@ in
   programs.imv.enable = true;
   programs.brave = {
     enable = true;
-    commandLineArgs = [
-      "--ozone-platform=wayland"
-      "--enable-features=UseOzonePlatform"
-    ];
     extensions = [
       { id = "cjpalhdlnbpafiamejdnhcphjbkeiagm"; } # uBlock Origin
       { id = "kkhfnlkhiapbiehimabddjbimfaijdhk"; } # Gopass Bridge

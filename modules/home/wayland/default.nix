@@ -4,6 +4,7 @@
     # ./waybar.nix
     ./hypridle.nix
     ./hyprland.nix
+    # ./niri.nix
     ./ashell.nix
 
   ];
