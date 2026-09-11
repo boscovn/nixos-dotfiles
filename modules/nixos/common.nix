@@ -2,16 +2,8 @@
 {
   imports = [
     ./desktop
+    ../stylix.nix
   ];
-
-  stylix.enable = true;
-  stylix.base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
-  stylix.opacity.terminal = 0.8;
-  stylix.fonts.monospace = {
-    package = pkgs.nerd-fonts.fira-code;
-    name = "FiraCodeNerdFont";
-  };
-  stylix.image = ./../../gnus.JPG;
 
   hardware.bluetooth.enable = true;
   services.blueman.enable = true;

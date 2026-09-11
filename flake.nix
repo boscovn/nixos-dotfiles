@@ -95,7 +95,11 @@
             config.allowUnfree = true;
           };
           extraSpecialArgs = { inherit inputs hostname user; };
-          modules = [ ./modules/home ];
+          modules = [
+            stylix.homeModules.stylix
+            ./modules/stylix.nix
+            ./modules/home
+          ];
         };
     in
     {
