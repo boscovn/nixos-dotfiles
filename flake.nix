@@ -87,6 +87,21 @@
         formatting = treefmtEval.${system}.config.build.check self;
       });
 
+      # Standalone Neovim, built straight from the same nixvim config used by
+      # modules/home/nixvim, independent of home-manager/NixOS.
+      # `nix run ~/.dotfiles#nvim` rebuilds/tests just the editor config.
+      packages = eachSystem (system: {
+        nvim = nixvim.legacyPackages.${system}.makeNixvimWithModule {
+          pkgs = nixpkgs.legacyPackages.${system};
+          extraSpecialArgs = { inherit inputs; };
+          module = [
+            { nixpkgs.source = nixpkgs; }
+            ./modules/home/nixvim/shared/config.nix
+            ./modules/home/nixvim/shared/keymaps.nix
+          ];
+        };
+      });
+
       nixosConfigurations = {
         thinkpad = mkSystem { hostname = "thinkpad"; };
         # Example: adding another machine is one line:
