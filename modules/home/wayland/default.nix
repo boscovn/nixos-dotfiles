@@ -5,8 +5,8 @@
     ./hypridle.nix
     ./hyprland.nix
     # ./niri.nix
-    # ./ashell.nix
-    ./quickshell.nix
+    ./ashell.nix
+    # ./quickshell.nix
 
   ];
   home.packages = with pkgs; [

@@ -12,11 +12,10 @@
         "Workspaces"
       ];
       right = [
-        "Keyboard Layout"
-        "Battery"
+        "KeyboardLayout"
         "SystemInfo"
         [
-          "Clock"
+          "Tempo"
           "Privacy"
           "Settings"
         ]
