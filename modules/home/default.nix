@@ -34,22 +34,25 @@ in
     };
   };
 
-  home.packages = with pkgs; [
-    claude-code
-    corefonts
-    devenv
-    # gcr
-    # gemini-cli
-    jq
-    kdePackages.dolphin
-    liberation_ttf
-    nixfmt
-    onlyoffice-desktopeditors
-    ouch
-    pavucontrol
-    telegram-desktop
-    vista-fonts
-  ];
+  home.packages =
+    with pkgs;
+    [
+      claude-code
+      corefonts
+      devenv
+      # gcr
+      # gemini-cli
+      jq
+      kdePackages.dolphin
+      liberation_ttf
+      nixfmt
+      onlyoffice-desktopeditors
+      ouch
+      pavucontrol
+      telegram-desktop
+      vista-fonts
+    ]
+    ++ [ inputs.home-manager.packages.${pkgs.stdenv.hostPlatform.system}.default ];
 
   fonts.fontconfig.enable = true;
   programs.gh.enable = true;

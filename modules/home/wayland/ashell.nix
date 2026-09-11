@@ -33,7 +33,7 @@
     };
     keyboard_layout = {
       labels = {
-        "Spanish" = "🇪🇸";
+        "Spanish" = "es🇪🇸";
         "English (US)" = "🇺🇸";
       };
     };
