@@ -29,8 +29,8 @@
     };
     keyboard_layout = {
       labels = {
-        "Spanish" = "ES";
-        "English (US)" = "US";
+        "Spanish" = "🇪🇸";
+        "English (US)" = "🇺🇸";
       };
     };
   };
