@@ -4,9 +4,13 @@
   programs.ashell.enable = true;
   programs.ashell.systemd.enable = true;
   programs.ashell.settings = {
+    osd = {
+      enabled = true;
+    };
+
     modules = {
       center = [
-        "Window Title"
+        "WindowTitle"
       ];
       left = [
         "Workspaces"
