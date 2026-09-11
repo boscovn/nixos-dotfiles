@@ -1,4 +1,9 @@
-{ pkgs, hostname, ... }:
+{
+  pkgs,
+  hostname,
+  user,
+  ...
+}:
 {
   programs.zsh = {
     enable = true;
@@ -8,6 +13,8 @@
     history.size = 10000;
     shellAliases = {
       reb = "sudo nixos-rebuild switch --flake ~/.dotfiles#${hostname} --impure";
+      hms = "home-manager switch --flake ~/.dotfiles#${user}@${hostname}";
+      nnvim = "nix run ~/.dotfiles#nvim";
       ls = "${pkgs.eza}/bin/eza";
       mpv = "nvidia-offload mpv";
     };
@@ -16,6 +23,8 @@
     enable = true;
     shellAliases = {
       reb = "sudo nixos-rebuild switch --flake ~/.dotfiles#${hostname} --impure";
+      hms = "home-manager switch --flake ~/.dotfiles#${user}@${hostname}";
+      nnvim = "nix run ~/.dotfiles#nvim";
     };
   };
   programs.starship.enable = true;

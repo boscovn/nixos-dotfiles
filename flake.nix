@@ -80,6 +80,23 @@
             }
           ];
         };
+
+      mkHome =
+        {
+          hostname,
+          system ? "x86_64-linux",
+          user ? "bosco",
+        }:
+        home-manager.lib.homeManagerConfiguration {
+          # Mirrors modules/nixos/common.nix's nixpkgs.config, which
+          # `useGlobalPkgs` normally shares with the NixOS-embedded build.
+          pkgs = import nixpkgs {
+            inherit system;
+            config.allowUnfree = true;
+          };
+          extraSpecialArgs = { inherit inputs hostname user; };
+          modules = [ ./modules/home ];
+        };
     in
     {
       formatter = eachSystem (system: treefmtEval.${system}.config.build.wrapper);
@@ -106,6 +123,13 @@
         thinkpad = mkSystem { hostname = "thinkpad"; };
         # Example: adding another machine is one line:
         # desktop = mkSystem { hostname = "desktop"; system = "x86_64-linux"; };
+      };
+
+      # Standalone Home Manager, independent of nixos-rebuild.
+      # `home-manager switch --flake ~/.dotfiles#bosco@thinkpad` (aliased `hms`)
+      # applies user-space changes without a full system rebuild.
+      homeConfigurations = {
+        "bosco@thinkpad" = mkHome { hostname = "thinkpad"; };
       };
     };
 }
