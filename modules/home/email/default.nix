@@ -12,8 +12,8 @@
     enable = true;
     extraAccounts = {
       meta = {
-        source = "notmuch://${config.home.homeDirectory}/Maildir";
-        maildir-store = "${config.home.homeDirectory}/Maildir";
+        source = "notmuch://";
+        # maildir-store = "${config.home.homeDirectory}/Maildir";
         from = "Bosco Vallejo-Nágera <bosco@vallejonagera.xyz>";
         outgoing = "msmtp --read-envelope-from --read-recipients";
         query-map = "${config.home.homeDirectory}/.config/aerc/query-map";

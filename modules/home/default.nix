@@ -39,7 +39,7 @@ in
     corefonts
     devenv
     # gcr
-    gemini-cli
+    # gemini-cli
     jq
     kdePackages.dolphin
     liberation_ttf
@@ -68,6 +68,7 @@ in
     extensions = [
       { id = "cjpalhdlnbpafiamejdnhcphjbkeiagm"; } # uBlock Origin
       { id = "kkhfnlkhiapbiehimabddjbimfaijdhk"; } # Gopass Bridge
+      { id = "hfjbmagddngcpeloejdejnfgbamkjaeg"; } # vimium
     ];
   };
   xdg.configFile."BraveSoftware/Brave-Browser/NativeMessagingHosts/com.justwatch.gopass.json".text =
