@@ -23,11 +23,16 @@
       yamlls.enable = true;
       jsonls.enable = true;
       zls.enable = true;
-      rust-analyzer.enable = true;
+      rust_analyzer.enable = true;
     };
   };
   colorschemes.tokyonight.enable = true;
   extraPlugins = [ pkgs.vimPlugins.plenary-nvim ];
+  # rust-analyzer shells out to cargo/rustc to resolve the project's sysroot.
+  extraPackages = [
+    pkgs.cargo
+    pkgs.rustc
+  ];
   plugins = {
     nix.enable = true;
     lsp.enable = true;
