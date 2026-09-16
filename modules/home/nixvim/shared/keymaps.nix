@@ -54,6 +54,15 @@
       action = "<CMD>LspRestart<Enter>";
       key = "<leader>lr";
     }
+    {
+      key = "<leader>ld";
+      action.__raw = ''
+        function()
+          vim.diagnostic.enable(not vim.diagnostic.is_enabled())
+        end
+      '';
+      options.desc = "Toggle diagnostics";
+    }
   ];
   plugins.blink-cmp.settings.keymap = {
     "<C-d>" = [ "scroll_documentation_up" ];
