@@ -70,25 +70,9 @@
       enable = true;
       yaml.enable = true;
     };
-    luasnip.enable = true;
     dap.enable = true;
     dap-ui.enable = true;
     dap-go.enable = true;
-    cmp-omni.enable = true;
-    cmp-dap.enable = true;
-    # cmp-nvim-lsp.enable = true;
-    # cmp-nvim-lsp-document-symbol.enable = true;
-    # cmp-nvim-lsp-signature-help.enable = true;
-    cmp-dictionary.enable = true;
-    cmp = {
-      enable = true;
-      autoEnableSources = true;
-      settings.sources = [
-        { name = "nvim_lsp"; }
-        { name = "path"; }
-        { name = "buffer"; }
-        { name = "luasnip"; }
-      ];
-    };
+    blink-cmp.enable = true;
   };
 }
