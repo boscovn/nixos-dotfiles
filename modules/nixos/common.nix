@@ -67,6 +67,14 @@
 
   services.gnome.gnome-keyring.enable = true;
   security.pam.services.login.enableGnomeKeyring = true;
+  # Unlocks GPG keys listed in ~/.pam-gnupg with the login password via
+  # gpg-agent's preset-passphrase mechanism. Unrelated to gnome-keyring above -
+  # separate subsystem, needs its own PAM hook. noAutostart because
+  # home-manager already starts gpg-agent as a systemd user service.
+  security.pam.services.login.gnupg = {
+    enable = true;
+    noAutostart = true;
+  };
 
   security.pki.certificates = [
     (builtins.readFile ../../certs/pimps.crt)

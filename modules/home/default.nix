@@ -86,7 +86,18 @@ in
   services.gpg-agent = {
     enable = true;
     pinentry.package = pkgs.pinentry-gnome3;
+    # Required for security.pam.services.login.gnupg (NixOS side) to be able
+    # to preset the GPG passphrase into the agent at login.
+    extraConfig = "allow-preset-passphrase";
   };
+
+  # Keygrips (from `gpg -K --with-keygrip`) that pam_gnupg presets with the
+  # login password on login. Not secret - just identifies which subkeys to
+  # unlock, the passphrase itself never touches this file.
+  home.file.".pam-gnupg".text = ''
+    F8BB962520DD9131EE53A699AE347656872DD659
+    9B8E03FA2B38830BB44F24D41079AF23AC699958
+  '';
 
   # GNOME Keyring control socket path is always /run/user/$UID/keyring but
   # UWSM doesn't import GNOME_KEYRING_CONTROL from the PAM environment into
