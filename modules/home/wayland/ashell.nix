@@ -7,20 +7,25 @@
     osd = {
       enabled = true;
     };
+    appearence.menu = {
+      opacity = 0.8;
+    };
 
     modules = {
       center = [
         "WindowTitle"
       ];
       left = [
+        "KeyboardLayout"
         "Workspaces"
       ];
       right = [
-        "KeyboardLayout"
+        "MediaPlayer"
         "SystemInfo"
         [
           "Tempo"
           "Privacy"
+          "Tray"
           "Settings"
         ]
       ];
@@ -30,6 +35,7 @@
     };
     window_title = {
       mode = "Title";
+      truncate_title_after_length = 75;
     };
     keyboard_layout = {
       labels = {
