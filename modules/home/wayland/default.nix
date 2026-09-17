@@ -4,6 +4,7 @@
     # ./waybar.nix
     ./hypridle.nix
     ./hyprland.nix
+    ./hyprlock.nix
     # ./niri.nix
     ./ashell.nix
     # ./quickshell.nix
