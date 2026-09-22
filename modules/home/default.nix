@@ -115,6 +115,7 @@ in
     };
     Install.WantedBy = [ "graphical-session-pre.target" ];
   };
+  programs.obsidian.enable = true;
   programs.yazi.enable = true;
   programs.yazi.shellWrapperName = "y";
   programs.git = {
