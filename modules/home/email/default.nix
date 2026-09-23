@@ -8,6 +8,7 @@
   home.packages = with pkgs; [ hydroxide ];
   programs.mbsync.enable = true;
   programs.msmtp.enable = true;
+  programs.thunderbird.enable = true;
   programs.aerc = {
     enable = true;
     extraAccounts = {
@@ -16,6 +17,8 @@
         # maildir-store = "${config.home.homeDirectory}/Maildir";
         from = "Bosco Vallejo-Nágera <bosco@vallejonagera.xyz>";
         outgoing = "msmtp --read-envelope-from --read-recipients";
+        multi-file-strategy = "act-all";
+
         query-map = "${config.home.homeDirectory}/.config/aerc/query-map";
       };
     };
@@ -49,8 +52,15 @@
         create = "maildir";
       };
       msmtp.enable = true;
+      thunderbird.enable = true;
       notmuch.enable = true;
-      aerc.enable = true;
+      # aerc is driven entirely through the notmuch-backed [meta] account
+      # (programs.aerc.extraAccounts below) and its query-map; this account's
+      # own aerc stanza was only ever a redundant, unused tab, and
+      # home-manager's aerc module still emits the pre-0.22 maildir-store /
+      # embedded-path notmuch:// source that aerc now warns as deprecated on
+      # every startup.
+      aerc.enable = false;
       primary = true;
       realName = "Bosco Vallejo-Nágera";
       passwordCommand = "gopass show bosco@vallejonagera.xyz";
