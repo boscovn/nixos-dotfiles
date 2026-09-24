@@ -24,8 +24,39 @@
       jsonls.enable = true;
       zls.enable = true;
       rust_analyzer.enable = true;
+      # servers for languages commonly embedded in markdown code blocks
+      bashls.enable = true;
+      lua_ls.enable = true;
+      pyright.enable = true;
     };
   };
+  # otter does nothing until activated per buffer: it extracts code blocks
+  # embedded in the host language and attaches LSPs for them.
+  autoCmd = [
+    {
+      event = "FileType";
+      pattern = [
+        "markdown"
+        "quarto"
+      ];
+      callback.__raw = ''
+        function()
+          require("otter").activate({ "go", "nix", "rust", "c", "cpp", "yaml", "json", "bash", "lua", "python" }, true, true, nil)
+        end
+      '';
+    }
+    {
+      # Embedded code in nix strings, e.g. `/* lua */ '''...'''` or shell in
+      # writeShellScript/buildPhase (from treesitter's nix injections).
+      event = "FileType";
+      pattern = "nix";
+      callback.__raw = ''
+        function()
+          require("otter").activate({ "bash", "lua", "python", "json", "yaml", "c", "cpp", "go", "rust" }, true, true, nil)
+        end
+      '';
+    }
+  ];
   colorschemes.tokyonight.enable = true;
   extraPlugins = [ pkgs.vimPlugins.plenary-nvim ];
   # rust-analyzer shells out to cargo/rustc to resolve the project's sysroot.
@@ -37,7 +68,13 @@
     nix.enable = true;
     lsp.enable = true;
     oil.enable = true;
-    otter.enable = true;
+    otter = {
+      enable = true;
+      settings = {
+        buffers.set_filetype = true;
+        handle_leading_whitespace = true;
+      };
+    };
     snacks = {
       enable = true;
       settings = {

@@ -89,7 +89,7 @@
     #   };
     #
     # };
-    extraConfig = ''
+    extraConfig = /* lua */ ''
       hl.config({
         input = {
           kb_layout  = "es,us",
@@ -125,6 +125,7 @@
       hl.bind(mainMod .. " + mouse_up",       hl.dsp.focus({ workspace = "e-1" }))
       hl.bind(mainMod .. " + 0",              hl.dsp.focus({ workspace = 10 }))
       hl.bind(mainMod .. " + SHIFT + 0",      hl.dsp.window.move({ workspace = 10 }))
+      hl.bind(mainMod .. " + SHIFT + P",      hl.dsp.exec_cmd("grim -g $(slurp)"))
 
       for i = 1, 9 do
         hl.bind(mainMod .. " + " .. i,             hl.dsp.focus({ workspace = i }))

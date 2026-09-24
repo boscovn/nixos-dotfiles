@@ -14,6 +14,7 @@
     extraAccounts = {
       meta = {
         source = "notmuch://";
+        exclude-tags = "archive,spam";
         # maildir-store = "${config.home.homeDirectory}/Maildir";
         from = "Bosco Vallejo-Nágera <bosco@vallejonagera.xyz>";
         outgoing = "msmtp --read-envelope-from --read-recipients";
@@ -74,6 +75,20 @@
       };
       userName = "bosco@vallejonagera.xyz";
     };
+    accounts.old = {
+      address = "bosco@no8do.com";
+      userName = "bosco@no8do.com";
+      realName = "Bosco Vallejo-Nágera";
+      imap.host = "no8do-com.correoseguro.dinaserver.com";
+      smtp.host = "no8do-com.correoseguro.dinaserver.com";
+      mbsync = {
+        enable = true;
+        create = "maildir";
+      };
+      msmtp.enable = true;
+      aerc.enable = true;
+      passwordCommand = "gopass show mail/no8do.com";
+    };
   };
 
   home.file.".config/aerc/query-map".text = ''
@@ -97,7 +112,7 @@
     enable = true;
     hooks = {
       preNew = "mbsync --all";
-      postNew = ''
+      postNew = /* bash */ ''
         # structural: apply to all mail in these folders, not just new
         notmuch tag +sent -inbox -- folder:personal/Sent
         notmuch tag +draft -inbox -- folder:personal/Drafts
@@ -107,7 +122,7 @@
         # category tags: only on new incoming mail
         notmuch tag +finance -- 'tag:new and (to:fin.outlying285@simplelogin.com or from:revolut or from:paypal or from:coinbase or from:stripe or from:bbva or from:n26)'
         notmuch tag +shopping -- 'tag:new and (to:vinted.bust057@simplelogin.com or from:silbon or from:aliexpress or from:amazon or from:boots or from:uber)'
-        notmuch tag +social -- 'tag:new and (to:socbos+twitter@simplelogin.com or from:linkedin or from:instagram or from:twitter or from:facebookmail)'
+        notmuch tag +social -- 'tag:new and (to:socbos+twitter@simplelogin.com or from:instagram or from:twitter or from:facebookmail)'
         notmuch tag +jobs -- 'tag:new and (from:pagepersonnel or from:infojobs or from:relocate or from:appfigures)'
         notmuch tag +travel -- 'tag:new and (from:iberia or from:balearia or from:booking or from:airbnb or from:renfe or from:parador)'
         notmuch tag +newsletter -- 'tag:new and (to:simplelogin-newsletter.makeover699@simplelogin.com or from:voxespana or from:elespanol or from:myglo or from:lateral or from:riela or from:steam)'
