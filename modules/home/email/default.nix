@@ -18,6 +18,11 @@
         from = "Bosco Vallejo-Nágera <bosco@vallejonagera.xyz>";
         outgoing = "msmtp --read-envelope-from --read-recipients";
         multi-file-strategy = "act-all";
+        # Resolves folder names below against ~/Maildir/personal, which is
+        # where mbsync puts the account (see accounts.email.accounts.personal).
+        maildir-account-path = "personal";
+        copy-to = "Sent";
+        postpone = "Drafts";
 
         query-map = "${config.home.homeDirectory}/.config/aerc/query-map";
       };
