@@ -8,6 +8,9 @@
     bat.enable = true;
     fd.enable = true;
     go.enable = true;
+    # Builds the mandb index so `man -k`/apropos work (Telescope man_pages,
+    # :Man completion); off by default, so `man -k .` finds nothing.
+    man.generateCaches = true;
     ripgrep.enable = true;
   };
 

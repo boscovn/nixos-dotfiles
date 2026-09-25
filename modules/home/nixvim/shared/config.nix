@@ -40,7 +40,9 @@
         "quarto"
       ];
       callback.__raw = ''
-        function()
+        function(args)
+          -- skip scratch buffers such as LSP hover floats (filetype markdown)
+          if vim.bo[args.buf].buftype ~= "" then return end
           require("otter").activate({ "go", "nix", "rust", "c", "cpp", "yaml", "json", "bash", "lua", "python" }, true, true, nil)
         end
       '';
@@ -51,7 +53,8 @@
       event = "FileType";
       pattern = "nix";
       callback.__raw = ''
-        function()
+        function(args)
+          if vim.bo[args.buf].buftype ~= "" then return end
           require("otter").activate({ "bash", "lua", "python", "json", "yaml", "c", "cpp", "go", "rust" }, true, true, nil)
         end
       '';
@@ -70,6 +73,9 @@
     oil.enable = true;
     otter = {
       enable = true;
+      # activates on every LSP attach, including otter-ls itself and hover
+      # floats; we activate explicitly per filetype below instead
+      autoActivate = false;
       settings = {
         buffers.set_filetype = true;
         handle_leading_whitespace = true;

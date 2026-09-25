@@ -43,7 +43,8 @@ in
         address-book-cmd = "${pkgs.notmuch}/bin/notmuch address %s";
       };
       filters = {
-        "text/plain" = "${pkgs.aerc}/libexec/aerc/filters/colorize";
+        "text/plain" =
+          "${pkgs.aerc}/libexec/aerc/filters/colorize | ${pkgs.aerc}/libexec/aerc/filters/wrap";
         "text/calendar" = "${pkgs.gawk}/bin/awk -f ${pkgs.aerc}/libexec/aerc/filters/calendar";
         "text/html" = "${pkgs.aerc}/libexec/aerc/filters/html | ${pkgs.aerc}/libexec/aerc/filters/colorize";
         "message/delivery-status" = "${pkgs.aerc}/libexec/aerc/filters/colorize";
