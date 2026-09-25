@@ -3,6 +3,7 @@
   imports = [
     ./hardware-configuration.nix
     ../../modules/nixos/hardware/nvidia.nix
+    ../../modules/nixos/hardware/howdy.nix
   ];
 
   networking.hostName = "thinkpad";
