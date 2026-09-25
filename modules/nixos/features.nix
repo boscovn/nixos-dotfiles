@@ -30,6 +30,7 @@ in
 
     (lib.mkIf f.docker {
       virtualisation.docker.enable = true;
+      virtualisation.docker.enableOnBoot = false;
       users.users.${host.user}.extraGroups = [ "docker" ];
     })
 

@@ -6,89 +6,6 @@
     portalPackage = null;
     systemd.enable = false;
     configType = "lua";
-    # settings = {
-    #   monitor = ",preferred,auto,auto";
-    #
-    #   env = [
-    #     "XCURSOR_SIZE,24"
-    #     "HYPRCURSOR_SIZE,24"
-    #   ];
-    #
-    #   # "$terminal" = "ghostty";  # invalid Lua identifier ($), inline values in binds instead
-    #   # "$fileManager" = "dolphin";
-    #   # "$menu" = "fuzzel";
-    #   # "$mainMod" = "SUPER";
-    #
-    #   general = {
-    #     gaps_in = 5;
-    #     gaps_out = 20;
-    #     border_size = 2;
-    #     # "col.active_border" = "rgba(33ccffee) rgba(00ff99ee) 45deg";
-    #     # "col.inactive_border" = "rgba(595959aa)";
-    #     resize_on_border = false;
-    #     allow_tearing = false;
-    #     layout = "dwindle";
-    #   };
-    #
-    #   decoration = {
-    #     rounding = 10;
-    #     active_opacity = 1.0;
-    #     inactive_opacity = 1.0;
-    #     blur = {
-    #       enabled = true;
-    #       size = 3;
-    #       passes = 1;
-    #       vibrancy = 0.1696;
-    #     };
-    #   };
-    #
-    #   # animations = {
-    #   #   enabled = true;
-    #   #   bezier = "myBezier, 0.05, 0.9, 0.1, 1.05";
-    #   #   animation = [
-    #   #     "windows, 1, 7, myBezier"
-    #   #     "windowsOut, 1, 7, default, popin 80%"
-    #   #     "border, 1, 10, default"
-    #   #     "borderangle, 1, 8, default"
-    #   #     "fade, 1, 7, default"
-    #   #     "workspaces, 1, 6, default"
-    #   #   ];
-    #   # };
-    #
-    #   dwindle = {
-    #     # pseudotile = true;
-    #     preserve_split = true;
-    #   };
-    #
-    #   master = {
-    #     new_status = "master";
-    #   };
-    #
-    #   misc = {
-    #     force_default_wallpaper = -1;
-    #     # disable_hyprland_logo = false;
-    #   };
-    #
-    #   xwayland = {
-    #     force_zero_scaling = true;
-    #   };
-    #
-    #   input = {
-    #     kb_layout = "es,us";
-    #     kb_options = "grp:alt_shift_toggle";
-    #     follow_mouse = 1;
-    #     sensitivity = 0;
-    #     touchpad = {
-    #       natural_scroll = false;
-    #     };
-    #   };
-    #
-    #   device = {
-    #     name = "epic-mouse-v1";
-    #     sensitivity = -0.5;
-    #   };
-    #
-    # };
     extraConfig = /* lua */ ''
       hl.config({
         input = {
@@ -98,6 +15,7 @@
           sensitivity  = 0,
           touchpad = { natural_scroll = false },
         },
+       decoration = {rounding = 18, rounding_power = 2.5}, 
       })
 
       local terminal    = "ghostty +new-window"
