@@ -1,0 +1,43 @@
+# Baseline every host inherits; hosts/<name>/host.nix overrides what differs
+# (merged recursively in flake.nix's mkHost). Plain data only - it is read by
+# both NixOS and home-manager modules through the `host` module argument, so
+# `reb` (embedded home-manager) and standalone `hms` always agree.
+{
+  system = "x86_64-linux";
+  user = "bosco";
+
+  timeZone = "Europe/Madrid";
+  locale = "en_GB.UTF-8";
+  # Locale used for LC_* categories (dates, currency, paper size, ...).
+  regionalLocale = "es_ES.UTF-8";
+  # Console/X keymap, and the Hyprland layout list (first one is active).
+  keyMap = "es";
+  kbLayouts = "es,us";
+
+  gpu = {
+    intel.enable = false;
+    nvidia = {
+      enable = false;
+      # nixpkgs `cudaSupport` (CUDA-enabled builds of packages) plus the
+      # nixos-cuda binary cache. Only meaningful with nvidia.enable.
+      cuda = false;
+      driver = "stable";
+      open = false;
+      # PRIME render offload for hybrid graphics (needs both bus ids).
+      prime = {
+        enable = false;
+        intelBusId = null;
+        nvidiaBusId = null;
+      };
+    };
+  };
+
+  features = {
+    laptop = false; # tlp, upower, lid-switch handling
+    bluetooth = false;
+    docker = false;
+    gaming = false; # steam
+    kdeconnect = false;
+    ssh = false;
+  };
+}

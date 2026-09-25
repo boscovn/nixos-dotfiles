@@ -40,15 +40,42 @@
         system: treefmt-nix.lib.evalModule nixpkgs.legacyPackages.${system} ./treefmt.nix
       );
 
-      mkSystem =
+      # Host data: hosts/defaults.nix overridden by hosts/<name>/host.nix.
+      # Passed to every NixOS and home-manager module as the `host` argument.
+      mkHost =
+        name:
+        (nixpkgs.lib.recursiveUpdate (import ./hosts/defaults.nix) (import ./hosts/${name}/host.nix))
+        // {
+          hostname = name;
+        };
+
+      # Single source of truth for nixpkgs config, so `reb` and `hms` build the
+      # same package set (they used to disagree on cudaSupport).
+      nixpkgsConfig =
+        host:
         {
-          hostname,
-          system ? "x86_64-linux",
-          user ? "bosco",
-        }:
+          allowUnfree = true;
+        }
+        // nixpkgs.lib.optionalAttrs (host.gpu.nvidia.enable && host.gpu.nvidia.cuda) {
+          cudaSupport = true;
+        };
+
+      mkSystem =
+        { hostname }:
+        let
+          host = mkHost hostname;
+          inherit (host) user;
+        in
         nixpkgs.lib.nixosSystem {
-          inherit system;
-          specialArgs = { inherit inputs hostname user; };
+          inherit (host) system;
+          specialArgs = {
+            inherit
+              inputs
+              host
+              hostname
+              user
+              ;
+          };
           modules = [
             {
               # Hyprland 0.56.1 requires glaze <8 (CMakeLists.txt: find_package(glaze 7...<8)),
@@ -68,6 +95,7 @@
               #   })
               # ];
             }
+            { nixpkgs.config = nixpkgsConfig host; }
             stylix.nixosModules.stylix
             ./modules/nixos/common.nix
             ./hosts/${hostname}
@@ -76,26 +104,38 @@
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
               home-manager.users.${user} = import ./modules/home;
-              home-manager.extraSpecialArgs = { inherit inputs hostname user; };
+              home-manager.extraSpecialArgs = {
+                inherit
+                  inputs
+                  host
+                  hostname
+                  user
+                  ;
+              };
             }
           ];
         };
 
       mkHome =
-        {
-          hostname,
-          system ? "x86_64-linux",
-          user ? "bosco",
-        }:
+        { hostname }:
+        let
+          host = mkHost hostname;
+          inherit (host) user;
+        in
         home-manager.lib.homeManagerConfiguration {
-          # Mirrors modules/nixos/common.nix's nixpkgs.config, which
-          # `useGlobalPkgs` normally shares with the NixOS-embedded build.
+          # Same config `useGlobalPkgs` shares with the NixOS-embedded build.
           pkgs = import nixpkgs {
-            inherit system;
-            config.allowUnfree = true;
-            config.cudaSupport = true;
+            inherit (host) system;
+            config = nixpkgsConfig host;
           };
-          extraSpecialArgs = { inherit inputs hostname user; };
+          extraSpecialArgs = {
+            inherit
+              inputs
+              host
+              hostname
+              user
+              ;
+          };
           modules = [
             stylix.homeModules.stylix
             ./modules/stylix.nix
@@ -127,7 +167,7 @@
       nixosConfigurations = {
         thinkpad = mkSystem { hostname = "thinkpad"; };
         # Example: adding another machine is one line:
-        # desktop = mkSystem { hostname = "desktop"; system = "x86_64-linux"; };
+        # desktop = mkSystem { hostname = "desktop"; };  # + hosts/desktop/{default,host}.nix
       };
 
       # Standalone Home Manager, independent of nixos-rebuild.
