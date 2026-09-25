@@ -100,7 +100,7 @@
         },
       })
 
-      local terminal    = "ghostty"
+      local terminal    = "ghostty +new-window"
       local fileManager = "dolphin"
       local menu        = "fuzzel"
       local mainMod     = "SUPER"
