@@ -9,6 +9,9 @@
       # This camera's YUYV mode is unusable garbage; only MJPG (640x480) gives a
       # real IR image, and OpenCV would otherwise pick YUYV.
       force_mjpeg = true;
+      # Lower = stricter (howdy recommends 3.5-5.0). Default 3.5 rejected the
+      # enrolled face; `howdy test` prints the measured value on a match.
+      certainty = 5.0;
     };
   };
 
