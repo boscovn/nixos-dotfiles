@@ -20,6 +20,7 @@ in
     ./shell
     ./email
     ./tools.nix
+    ./media.nix
   ];
 
   home.username = user;
