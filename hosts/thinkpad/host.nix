@@ -1,4 +1,9 @@
 {
+  profiles = [
+    "email"
+    "desktop"
+  ];
+
   gpu = {
     intel.enable = true;
     nvidia = {

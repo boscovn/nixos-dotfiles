@@ -1,119 +1,15 @@
-{
-  config,
-  pkgs,
-  inputs,
-  user,
-  ...
-}:
-let
-  # Native messaging host for the Gopass Bridge extension: browsers invoke
-  # this with the extension origin as argv[1], which gopass-jsonapi's own
-  # "listen" subcommand ignores, so a thin wrapper is enough.
-  gopassJsonapiWrapper = pkgs.writeShellScript "gopass-jsonapi-wrapper" ''
-    exec ${pkgs.gopass-jsonapi}/bin/gopass-jsonapi listen
-  '';
-in
+# Single home-manager entry point for both `reb` (embedded) and `hms`
+# (standalone). Always imports the core profile, then one file per name in
+# host.profiles (see hosts/defaults.nix). `host` is a module argument rather
+# than config, so importing on it cannot recurse.
+{ host, user, ... }:
 {
   imports = [
-    ./wayland
-    ./nixvim
-    ./shell
-    ./email
-    ./tools.nix
-    ./media.nix
-  ];
+    ./profiles/core.nix
+  ]
+  ++ map (name: ./profiles/${name}.nix) host.profiles;
 
   home.username = user;
-  home.homeDirectory = "/home/${user}";
+  home.homeDirectory = if host.os == "darwin" then "/Users/${user}" else "/home/${user}";
   home.stateVersion = "24.05";
-  # silence warnings
-  # gtk.gtk.theme =
-
-  xdg.mimeApps = {
-    enable = true;
-    defaultApplications = {
-      "application/pdf" = [ "org.pwmt.zathura.desktop" ];
-    };
-  };
-
-  home.packages =
-    with pkgs;
-    [
-      claude-code
-      corefonts
-      devenv
-      # gcr
-      # gemini-cli
-      jq
-      kdePackages.dolphin
-      liberation_ttf
-      nixfmt
-      onlyoffice-desktopeditors
-      ouch
-      pavucontrol
-      telegram-desktop
-      vista-fonts
-    ]
-    ++ [ inputs.home-manager.packages.${pkgs.stdenv.hostPlatform.system}.default ];
-
-  fonts.fontconfig.enable = true;
-  programs.gh.enable = true;
-  programs.zathura.enable = true;
-  programs.mpv = {
-    enable = true;
-    scripts = [ pkgs.mpvScripts.mpris ];
-    config = {
-      save-position-on-quit = true;
-    };
-  };
-  programs.gpg.enable = true;
-  programs.imv.enable = true;
-  programs.brave = {
-    enable = true;
-    extensions = [
-      { id = "cjpalhdlnbpafiamejdnhcphjbkeiagm"; } # uBlock Origin
-      { id = "kkhfnlkhiapbiehimabddjbimfaijdhk"; } # Gopass Bridge
-      { id = "hfjbmagddngcpeloejdejnfgbamkjaeg"; } # vimium
-    ];
-  };
-  xdg.configFile."BraveSoftware/Brave-Browser/NativeMessagingHosts/com.justwatch.gopass.json".text =
-    builtins.toJSON
-      {
-        name = "com.justwatch.gopass";
-        description = "Gopass wrapper to search and return passwords";
-        path = "${gopassJsonapiWrapper}";
-        type = "stdio";
-        allowed_origins = [ "chrome-extension://kkhfnlkhiapbiehimabddjbimfaijdhk/" ];
-      };
-  services.gpg-agent = {
-    enable = true;
-    pinentry.package = pkgs.pinentry-gnome3;
-  };
-
-  # GNOME Keyring control socket path is always /run/user/$UID/keyring but
-  # UWSM doesn't import GNOME_KEYRING_CONTROL from the PAM environment into
-  # the systemd user session — set it explicitly using the %U UID specifier.
-  systemd.user.services.gnome-keyring-env = {
-    Unit = {
-      Description = "Export GNOME_KEYRING_CONTROL into systemd user environment";
-      Before = [ "graphical-session-pre.target" ];
-      PartOf = [ "graphical-session-pre.target" ];
-    };
-    Service = {
-      Type = "oneshot";
-      ExecStart = "${pkgs.systemd}/bin/systemctl --user set-environment GNOME_KEYRING_CONTROL=/run/user/%U/keyring";
-      RemainAfterExit = true;
-    };
-    Install.WantedBy = [ "graphical-session-pre.target" ];
-  };
-  programs.obsidian.enable = true;
-  programs.yazi.enable = true;
-  programs.yazi.shellWrapperName = "y";
-  programs.git = {
-    enable = true;
-    settings = {
-      user.name = "Bosco Vallejo-Nágera";
-      user.email = "bosco@vallejonagera.xyz";
-    };
-  };
 }

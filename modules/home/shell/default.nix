@@ -22,7 +22,7 @@ let
         "$dotfiles/flake.lock" \
         "$dotfiles/modules/home/nixvim/shared/config.nix" \
         "$dotfiles/modules/home/nixvim/shared/keymaps.nix" \
-        2>/dev/null | sha256sum | cut -d' ' -f1)
+        2>/dev/null | '${pkgs.coreutils}/bin/sha256sum' | '${pkgs.coreutils}/bin/cut' -d' ' -f1)
       if [ -x "$cache/bin/nvim" ] && [ "$(cat "$cache/hash" 2>/dev/null)" = "$hash" ]; then
         exec "$cache/bin/nvim" "$@"
       fi
@@ -34,6 +34,17 @@ let
       exec "$out/bin/nvim" "$@"
     }
   '';
+
+  # `reb` (nixos-rebuild) only exists on a NixOS host; standalone home-manager
+  # (`hms`) works everywhere. darwin and WSL get `hms` only until they have a
+  # system-level config of their own.
+  rebuildAliases =
+    lib.optionalAttrs (host.os == "linux" && !host.wsl) {
+      reb = "sudo nixos-rebuild switch --flake ~/.dotfiles#${hostname} --impure";
+    }
+    // {
+      hms = "home-manager switch --flake ~/.dotfiles#${user}@${hostname}";
+    };
 in
 {
   programs.zsh = {
@@ -43,23 +54,20 @@ in
     syntaxHighlighting.enable = true;
     history.size = 10000;
     initContent = nnvimFn;
-    shellAliases = {
-      reb = "sudo nixos-rebuild switch --flake ~/.dotfiles#${hostname} --impure";
-      hms = "home-manager switch --flake ~/.dotfiles#${user}@${hostname}";
-      ls = "${pkgs.eza}/bin/eza";
-    }
-    // lib.optionalAttrs host.gpu.nvidia.prime.enable {
-      # Run mpv on the discrete GPU (PRIME render offload).
-      mpv = "nvidia-offload mpv";
-    };
+    shellAliases =
+      rebuildAliases
+      // {
+        ls = "${pkgs.eza}/bin/eza";
+      }
+      // lib.optionalAttrs host.gpu.nvidia.prime.enable {
+        # Run mpv on the discrete GPU (PRIME render offload).
+        mpv = "nvidia-offload mpv";
+      };
   };
   programs.bash = {
     enable = true;
     initExtra = nnvimFn;
-    shellAliases = {
-      reb = "sudo nixos-rebuild switch --flake ~/.dotfiles#${hostname} --impure";
-      hms = "home-manager switch --flake ~/.dotfiles#${user}@${hostname}";
-    };
+    shellAliases = rebuildAliases;
   };
   programs.starship.enable = true;
   programs.zoxide.enable = true;

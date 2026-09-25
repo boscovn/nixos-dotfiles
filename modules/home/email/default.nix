@@ -2,13 +2,18 @@
   pkgs,
   config,
   lib,
+  host,
   ...
 }:
+let
+  # Thunderbird is a GUI app; only useful alongside the desktop profile.
+  desktop = builtins.elem "desktop" host.profiles;
+in
 {
   home.packages = with pkgs; [ hydroxide ];
   programs.mbsync.enable = true;
   programs.msmtp.enable = true;
-  programs.thunderbird.enable = true;
+  programs.thunderbird.enable = desktop;
   programs.aerc = {
     enable = true;
     extraAccounts = {
@@ -58,7 +63,7 @@
         create = "maildir";
       };
       msmtp.enable = true;
-      thunderbird.enable = true;
+      thunderbird.enable = desktop;
       notmuch.enable = true;
       # aerc is driven entirely through the notmuch-backed [meta] account
       # (programs.aerc.extraAccounts below) and its query-map; this account's

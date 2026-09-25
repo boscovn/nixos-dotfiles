@@ -1,31 +1,26 @@
-# User tooling that used to live in NixOS environment.systemPackages. Prefer a
-# programs.<name>.enable module when home-manager has one (config/theming/shell
-# integration for free); the rest are plain packages. Not available to
-# root/sudo sessions, by design.
-{ pkgs, ... }:
+# Portable CLI tooling (part of the core profile). Prefer a programs.<name>.enable
+# module when home-manager has one (config/theming/shell integration for free);
+# the rest are plain packages. Linux desktop/hardware tools live in
+# profiles/desktop.nix. Not available to root/sudo sessions, by design.
+{ lib, pkgs, ... }:
 {
   programs = {
     bat.enable = true;
     fd.enable = true;
-    # firefox.enable = true;
-    foot.enable = true;
     go.enable = true;
     ripgrep.enable = true;
   };
 
-  home.packages = with pkgs; [
-    android-tools
-    delve
-    firefox
-    gopass
-    gopass-jsonapi
-    gopls
-    libva-utils
-    opensc
-    pcsc-tools
-    trashy
-    usbutils
-    v4l-utils
-    wget
-  ];
+  home.packages =
+    with pkgs;
+    [
+      delve
+      gopass
+      gopls
+      opensc
+      pcsc-tools
+      wget
+    ]
+    # trashy is Linux-only (freedesktop trash spec).
+    ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [ pkgs.trashy ];
 }
