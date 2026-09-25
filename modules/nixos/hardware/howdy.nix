@@ -12,9 +12,7 @@
   security.pam.howdy.enable = lib.mkForce false;
   security.pam.services.hyprlock.howdy.enable = true;
 
-  # One-time setup after rebuilding: `sudo linux-enable-ir-emitter configure`.
-  services.linux-enable-ir-emitter = {
-    enable = true;
-    device = "video0";
-  };
+  # No services.linux-enable-ir-emitter: this camera's IR emitter already
+  # flashes on its own (`linux-enable-ir-emitter configure` reports "already
+  # working"), so the service had nothing to configure and did nothing.
 }
