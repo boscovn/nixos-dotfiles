@@ -7,7 +7,7 @@
   programs = {
     bat.enable = true;
     fd.enable = true;
-    firefox.enable = true;
+    # firefox.enable = true;
     foot.enable = true;
     go.enable = true;
     ripgrep.enable = true;
@@ -16,6 +16,7 @@
   home.packages = with pkgs; [
     android-tools
     delve
+    firefox
     gopass
     gopass-jsonapi
     gopls
