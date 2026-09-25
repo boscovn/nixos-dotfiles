@@ -3,7 +3,8 @@
   imports = [
     ./hardware-configuration.nix
     ../../modules/nixos/hardware/nvidia.nix
-    ../../modules/nixos/hardware/howdy.nix
+    # Paused: face match kept coming back "no match" (see howdy.nix).
+    # ../../modules/nixos/hardware/howdy.nix
   ];
 
   networking.hostName = "thinkpad";
