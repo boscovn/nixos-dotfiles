@@ -56,7 +56,7 @@
         {
           allowUnfree = true;
         }
-        // nixpkgs.lib.optionalAttrs (host.gpu.nvidia.enable && host.gpu.nvidia.cuda) {
+        // nixpkgs.lib.optionalAttrs (host.gpu.nvidia.enable && host.gpu.nvidia.globalCudaSupport) {
           cudaSupport = true;
         };
 

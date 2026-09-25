@@ -1,5 +1,7 @@
 {
+  lib,
   pkgs,
+  host,
   hostname,
   user,
   ...
@@ -45,6 +47,9 @@ in
       reb = "sudo nixos-rebuild switch --flake ~/.dotfiles#${hostname} --impure";
       hms = "home-manager switch --flake ~/.dotfiles#${user}@${hostname}";
       ls = "${pkgs.eza}/bin/eza";
+    }
+    // lib.optionalAttrs host.gpu.nvidia.prime.enable {
+      # Run mpv on the discrete GPU (PRIME render offload).
       mpv = "nvidia-offload mpv";
     };
   };

@@ -19,6 +19,7 @@ in
     ./nixvim
     ./shell
     ./email
+    ./tools.nix
   ];
 
   home.username = user;

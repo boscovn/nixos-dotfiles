@@ -3,7 +3,7 @@
     intel.enable = true;
     nvidia = {
       enable = true;
-      cuda = true;
+      cuda = true; # toolkit + cache; global cudaSupport intentionally off
       driver = "legacy_580";
       prime = {
         enable = true;

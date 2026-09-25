@@ -18,9 +18,13 @@
     intel.enable = false;
     nvidia = {
       enable = false;
-      # nixpkgs `cudaSupport` (CUDA-enabled builds of packages) plus the
-      # nixos-cuda binary cache. Only meaningful with nvidia.enable.
+      # CUDA toolkit + the nixos-cuda binary cache. Use explicit packages such
+      # as `pkgs.ollama-cuda` for CUDA software.
       cuda = false;
+      # nixpkgs `cudaSupport`: rebuilds every package that has a CUDA option
+      # with CUDA (e.g. firefox pulls a ~6 GiB CUDA onnxruntime). Almost never
+      # what you want; applies to `reb` and `hms` alike.
+      globalCudaSupport = false;
       driver = "stable";
       open = false;
       # PRIME render offload for hybrid graphics (needs both bus ids).

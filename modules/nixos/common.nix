@@ -1,16 +1,18 @@
-{ pkgs, user, ... }:
+{
+  pkgs,
+  host,
+  ...
+}:
 {
   imports = [
     ./desktop
+    ./features.nix
+    ./hardware/nvidia.nix
+    ./hardware/intel-graphics.nix
     ../stylix.nix
   ];
 
-  hardware.bluetooth.enable = true;
-  services.blueman.enable = true;
-  virtualisation.docker.enable = true;
-  programs.kdeconnect.enable = true;
   services.fwupd.enable = true;
-  services.upower.enable = true;
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -20,25 +22,16 @@
   # KeyringMode=shared) auto-unlock the login keyring under autologin
   # without it, gnome-keyring-daemon starts but the keyring stays locked.
   boot.plymouth.enable = true;
+
   nix.settings = {
-    substituters = [
-      "https://cache.nixos-cuda.org"
-      "https://nix-community.cachix.org"
-
+    substituters = [ "https://nix-community.cachix.org" ];
+    trusted-public-keys = [ "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" ];
+    experimental-features = [
+      "nix-command"
+      "flakes"
     ];
-    trusted-public-keys = [
-      "cache.nixos-cuda.org:74DUi4Ye579gUqzH4ziL9IyiJBlDpMRn9MBN8oNan9M="
-      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-
-    ];
+    trusted-users = [ host.user ];
   };
-
-  nix.settings.experimental-features = [
-    "nix-command"
-    "flakes"
-  ];
-  nix.settings.trusted-users = [ user ];
-  nixpkgs.config.allowUnfree = true;
 
   environment.sessionVariables.EDITOR = "nvim";
 
@@ -49,32 +42,38 @@
 
   networking.networkmanager.enable = true;
 
-  time.timeZone = "Europe/Madrid";
-  i18n.defaultLocale = "en_GB.UTF-8";
-  i18n.extraLocaleSettings = {
-    LC_ADDRESS = "es_ES.UTF-8";
-    LC_IDENTIFICATION = "es_ES.UTF-8";
-    LC_MEASUREMENT = "es_ES.UTF-8";
-    LC_MONETARY = "es_ES.UTF-8";
-    LC_NAME = "es_ES.UTF-8";
-    LC_NUMERIC = "es_ES.UTF-8";
-    LC_PAPER = "es_ES.UTF-8";
-    LC_TELEPHONE = "es_ES.UTF-8";
-    LC_TIME = "es_ES.UTF-8";
-  };
+  time.timeZone = host.timeZone;
+  i18n.defaultLocale = host.locale;
+  i18n.extraLocaleSettings = builtins.listToAttrs (
+    map
+      (name: {
+        inherit name;
+        value = host.regionalLocale;
+      })
+      [
+        "LC_ADDRESS"
+        "LC_IDENTIFICATION"
+        "LC_MEASUREMENT"
+        "LC_MONETARY"
+        "LC_NAME"
+        "LC_NUMERIC"
+        "LC_PAPER"
+        "LC_TELEPHONE"
+        "LC_TIME"
+      ]
+  );
   services.xserver.xkb = {
-    layout = "es";
+    layout = host.keyMap;
     variant = "";
   };
-  console.keyMap = "es";
+  console.keyMap = host.keyMap;
 
   programs.zsh.enable = true;
-  users.users.${user} = {
+  users.users.${host.user} = {
     isNormalUser = true;
     description = "Bosco";
     extraGroups = [
       "adbusers"
-      "docker"
       "networkmanager"
       "video"
       "wheel"
@@ -91,47 +90,6 @@
   ];
 
   hardware.graphics.enable = true;
-  hardware.graphics.extraPackages = with pkgs; [
-    intel-media-driver
-    intel-vaapi-driver
-    libvdpau-va-gl
-  ];
-
-  environment.systemPackages = with pkgs; [
-    bat
-    delve
-    fd
-    firefox
-    foot
-    ghostty
-    go
-    gopass
-    gopass-jsonapi
-    gopls
-    hyprlock
-    libva-utils
-    opensc
-    pcsc-tools
-    ripgrep
-    trashy
-    usbutils
-    wget
-  ];
-
-  programs.steam.enable = true;
-
-  services.openssh.enable = true;
-  services.openssh.settings.PasswordAuthentication = false;
-  networking.firewall.allowedTCPPorts = [ 22 ];
-  services.logind.settings.Login.HandleLidSwitch = "ignore";
-  services.logind.settings.Login.HandleLidSwitchExternalPower = "ignore";
-
-  services.tlp = {
-    enable = true;
-    settings = {
-      USB_AUTOSUSPEND = 1;
-    };
-  };
 
   system.stateVersion = "24.05";
   security.rtkit.enable = true;
