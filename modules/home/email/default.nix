@@ -10,7 +10,10 @@ let
   desktop = builtins.elem "desktop" host.profiles;
 in
 {
-  home.packages = with pkgs; [ hydroxide ];
+  home.packages = with pkgs; [
+    hydroxide
+    maildir-rank-addr
+  ];
   programs.mbsync.enable = true;
   programs.msmtp.enable = true;
   programs.thunderbird.enable = desktop;
@@ -40,7 +43,8 @@ in
       };
       compose = {
         file-picker-cmd = "${pkgs.yazi}/bin/yazi --chooser-file %f";
-        address-book-cmd = "${pkgs.notmuch}/bin/notmuch address %s";
+        address-book-cmd = "${pkgs.ripgrep}/bin/rg --color=never -m 100 %s ${config.home.homeDirectory}/.cache/maildir-rank-addr/addressbook.tsv";
+        # address-book-cmd = "${pkgs.notmuch}/bin/notmuch address %s";
       };
       filters = {
         "text/plain" =
@@ -96,6 +100,14 @@ in
       passwordCommand = "gopass show mail/no8do.com";
     };
   };
+  home.file.".config/maildir-rank-addr/config".text = /* toml */ ''
+    maildir = "~/Maildir/"
+    addresses = [
+      "bosco@vallejonagera.xyz",
+      "bosco@no8do.com"
+    ]
+    template = "{{.Address}}\t{{.Name}}"
+  '';
 
   home.file.".config/aerc/query-map".text = ''
     Inbox	tag:inbox and not tag:sent and not tag:trash and not tag:spam

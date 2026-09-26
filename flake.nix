@@ -5,10 +5,6 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     # ... other inputs
     ashell.url = "github:MalpenZibo/ashell";
-    quickshell = {
-      url = "github:quickshell-mirror/quickshell";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
