@@ -53,9 +53,14 @@
       hl.bind(mainMod .. " + mouse:272",  hl.dsp.window.drag(),   { mouse = true })
       hl.bind(mainMod .. " + mouse:273",  hl.dsp.window.resize(), { mouse = true })
 
-      hl.bind("XF86AudioRaiseVolume",  hl.dsp.exec_cmd("wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+"), { locked = true, repeating = true })
-      hl.bind("XF86AudioLowerVolume",  hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),        { locked = true, repeating = true })
-      hl.bind("XF86AudioMute",         hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),       { locked = true, repeating = true })
+      -- Routed through ashell's IPC (instead of wpctl/brightnessctl directly)
+      -- so its OSD shows on each press; ashell.nix's [settings] max_volume=150
+      -- keeps the old wpctl -l 1.5 boost-past-100% headroom.
+      hl.bind("XF86AudioRaiseVolume",     hl.dsp.exec_cmd("ashell msg volume-up"),         { locked = true, repeating = true })
+      hl.bind("XF86AudioLowerVolume",     hl.dsp.exec_cmd("ashell msg volume-down"),       { locked = true, repeating = true })
+      hl.bind("XF86AudioMute",            hl.dsp.exec_cmd("ashell msg volume-toggle-mute"),{ locked = true, repeating = true })
+      hl.bind("XF86MonBrightnessUp",      hl.dsp.exec_cmd("ashell msg brightness-up"),     { locked = true, repeating = true })
+      hl.bind("XF86MonBrightnessDown",    hl.dsp.exec_cmd("ashell msg brightness-down"),   { locked = true, repeating = true })
     '';
   };
   services.hyprpaper.enable = true;

@@ -6,6 +6,12 @@
   programs.ashell.settings = {
     osd = {
       enabled = true;
+      show_volume_percentage = true;
+      show_brightness_percentage = true;
+    };
+    settings = {
+      # Preserves the old `wpctl set-volume -l 1.5` headroom (boost past 100%).
+      max_volume = 150;
     };
     appearence.menu = {
       opacity = 0.8;
