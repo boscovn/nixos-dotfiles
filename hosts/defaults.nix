@@ -53,6 +53,7 @@
     laptop = false; # tlp, upower, lid-switch handling
     bluetooth = false;
     docker = false;
+    dockerOnBoot = false;
     gaming = false; # steam
     kdeconnect = false;
     ssh = false;
