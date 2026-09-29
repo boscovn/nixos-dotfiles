@@ -8,11 +8,53 @@
 let
   # Thunderbird is a GUI app; only useful alongside the desktop profile.
   desktop = builtins.elem "desktop" host.profiles;
+
+  # Structural: by folder, always applied to all mail.
+  folderRules = [
+    "+sent -inbox -- folder:personal/Sent"
+    "+draft -inbox -- folder:personal/Drafts"
+    "+trash -inbox -- folder:personal/Trash"
+    "+spam -inbox -- folder:personal/Junk"
+  ];
+
+  # Category tags. Applied to new mail by the post-new hook, and to all mail
+  # by `notmuch-retag`, so both always use the same rules.
+  categoryRules = {
+    finance = "to:fin.outlying285@simplelogin.com or from:revolut or from:paypal or from:coinbase or from:stripe or from:bbva or from:n26";
+    shopping = "to:vinted.bust057@simplelogin.com or from:silbon or from:aliexpress or from:amazon or from:boots or from:uber";
+    social = "to:socbos+twitter@simplelogin.com or from:instagram or from:twitter or from:facebookmail";
+    jobs = "from:pagepersonnel or from:infojobs or from:relocate or from:appfigures";
+    travel = "from:iberia or from:balearia or from:booking or from:airbnb or from:renfe or from:parador";
+    newsletter = "to:simplelogin-newsletter.makeover699@simplelogin.com or from:voxespana or from:elespanol or from:myglo or from:lateral or from:riela or from:steam";
+    # U-tad (Office 365) mail: the tenant blocks third-party IMAP/SMTP
+    # clients, so it is forwarded from Outlook to a SimpleLogin alias.
+    utad = "to:juan.vallejo@live.u-tad.com or to:utadfwd.culminate455@aleeas.com";
+  };
+
+  # A `notmuch tag --batch` file (see notmuch-tag(1), TAG FILE FORMAT).
+  # `scope` is prepended to every category query.
+  mkTagBatch =
+    name: scope: extra:
+    pkgs.writeText "notmuch-${name}.batch" (
+      lib.concatLines (
+        folderRules
+        ++ lib.mapAttrsToList (tag: query: "+${tag} -- ${scope}(${query})") categoryRules
+        ++ extra
+      )
+    );
+
+  newMailBatch = mkTagBatch "new" "tag:new and " [ "-new -- tag:new" ];
+  allMailBatch = mkTagBatch "all" "" [ ];
 in
 {
   home.packages = with pkgs; [
     hydroxide
     maildir-rank-addr
+    # Re-apply every tag rule to all mail, e.g. after adding or changing one.
+    # Only adds tags; it never removes a tag a changed rule no longer matches.
+    (writeShellScriptBin "notmuch-retag" ''
+      exec ${notmuch}/bin/notmuch tag --batch --input=${allMailBatch}
+    '')
   ];
   programs.mbsync.enable = true;
   programs.msmtp.enable = true;
@@ -131,26 +173,7 @@ in
     enable = true;
     hooks = {
       preNew = "mbsync --all";
-      postNew = /* bash */ ''
-        # structural: apply to all mail in these folders, not just new
-        notmuch tag +sent -inbox -- folder:personal/Sent
-        notmuch tag +draft -inbox -- folder:personal/Drafts
-        notmuch tag +trash -inbox -- folder:personal/Trash
-        notmuch tag +spam -inbox -- folder:personal/Junk
-
-        # category tags: only on new incoming mail
-        notmuch tag +finance -- 'tag:new and (to:fin.outlying285@simplelogin.com or from:revolut or from:paypal or from:coinbase or from:stripe or from:bbva or from:n26)'
-        notmuch tag +shopping -- 'tag:new and (to:vinted.bust057@simplelogin.com or from:silbon or from:aliexpress or from:amazon or from:boots or from:uber)'
-        notmuch tag +social -- 'tag:new and (to:socbos+twitter@simplelogin.com or from:instagram or from:twitter or from:facebookmail)'
-        notmuch tag +jobs -- 'tag:new and (from:pagepersonnel or from:infojobs or from:relocate or from:appfigures)'
-        notmuch tag +travel -- 'tag:new and (from:iberia or from:balearia or from:booking or from:airbnb or from:renfe or from:parador)'
-        notmuch tag +newsletter -- 'tag:new and (to:simplelogin-newsletter.makeover699@simplelogin.com or from:voxespana or from:elespanol or from:myglo or from:lateral or from:riela or from:steam)'
-        # U-tad (Office 365) mail: the tenant blocks third-party IMAP/SMTP
-        # clients, so it is forwarded from Outlook to a SimpleLogin alias.
-        notmuch tag +utad -- 'tag:new and (to:juan.vallejo@live.u-tad.com or to:utadfwd.culminate455@aleeas.com)'
-
-        notmuch tag -new -- tag:new
-      '';
+      postNew = "notmuch tag --batch --input=${newMailBatch}";
     };
   };
 }
