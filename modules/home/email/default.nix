@@ -123,6 +123,7 @@ in
     Newsletters	tag:newsletter
     Travel	tag:travel
     iCloud	folder:personal/icloud
+    UTAD	tag:utad
     All	not tag:trash and not tag:spam
   '';
 
@@ -144,6 +145,9 @@ in
         notmuch tag +jobs -- 'tag:new and (from:pagepersonnel or from:infojobs or from:relocate or from:appfigures)'
         notmuch tag +travel -- 'tag:new and (from:iberia or from:balearia or from:booking or from:airbnb or from:renfe or from:parador)'
         notmuch tag +newsletter -- 'tag:new and (to:simplelogin-newsletter.makeover699@simplelogin.com or from:voxespana or from:elespanol or from:myglo or from:lateral or from:riela or from:steam)'
+        # U-tad (Office 365) mail: the tenant blocks third-party IMAP/SMTP
+        # clients, so it is forwarded from Outlook to a SimpleLogin alias.
+        notmuch tag +utad -- 'tag:new and (to:juan.vallejo@live.u-tad.com or to:utadfwd.culminate455@aleeas.com)'
 
         notmuch tag -new -- tag:new
       '';
