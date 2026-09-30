@@ -1,0 +1,83 @@
+# Turns each `hosts.<name>` into nixosConfigurations.<name> (home-manager
+# embedded, `reb`) and homeConfigurations."<user>@<name>" (standalone, `hms`).
+# Both use the same `homeManager.<name>` module, so they cannot drift.
+{
+  lib,
+  config,
+  inputs,
+  ...
+}:
+let
+  inherit (inputs) nixpkgs home-manager;
+  inherit (config.my) user;
+
+  mkSystem =
+    name: host:
+    nixpkgs.lib.nixosSystem {
+      inherit (host) system;
+      inherit (host) specialArgs;
+      modules = [
+        { nixpkgs.config = host.nixpkgsConfig; }
+        config.nixos.${name}
+        home-manager.nixosModules.home-manager
+        {
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+          home-manager.users.${user} = config.homeManager.${name};
+          home-manager.extraSpecialArgs = host.specialArgs;
+        }
+      ];
+    };
+
+  mkHome =
+    name: host:
+    home-manager.lib.homeManagerConfiguration {
+      # Same config `useGlobalPkgs` shares with the NixOS-embedded build.
+      pkgs = import nixpkgs {
+        inherit (host) system;
+        config = host.nixpkgsConfig;
+      };
+      extraSpecialArgs = host.specialArgs;
+      modules = host.standaloneHomeModules ++ [ config.homeManager.${name} ];
+    };
+in
+{
+  options.hosts = lib.mkOption {
+    default = { };
+    type = lib.types.attrsOf (
+      lib.types.submodule {
+        options = {
+          system = lib.mkOption {
+            type = lib.types.str;
+            default = "x86_64-linux";
+          };
+          nixpkgsConfig = lib.mkOption {
+            type = lib.types.attrs;
+            default = { };
+            description = "nixpkgs config shared by the NixOS and standalone home-manager builds.";
+          };
+          standaloneHomeModules = lib.mkOption {
+            type = lib.types.listOf lib.types.deferredModule;
+            default = [ ];
+            description = ''
+              Home-manager modules only for the standalone build, for things the
+              NixOS side injects into embedded home-manager by itself (stylix).
+            '';
+          };
+          # Transitional: the legacy modules still expect these module args.
+          specialArgs = lib.mkOption {
+            type = lib.types.attrs;
+            default = { };
+          };
+        };
+      }
+    );
+  };
+
+  config.flake = {
+    nixosConfigurations = lib.mapAttrs mkSystem config.hosts;
+    homeConfigurations = lib.mapAttrs' (
+      name: host: lib.nameValuePair "${user}@${name}" (mkHome name host)
+    ) config.hosts;
+  };
+}
