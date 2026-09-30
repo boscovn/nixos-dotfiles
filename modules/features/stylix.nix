@@ -41,6 +41,7 @@ in
     {
       stylix.autoEnable = lib.mkDefault config.dotfiles.gui;
       stylix.targets = {
+        rofi.enable = false;
         bat.enable = true;
         yazi.enable = true;
         starship.enable = true;
