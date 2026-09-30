@@ -47,6 +47,13 @@
         nvidiaBusId = null;
       };
     };
+    # Video playback (mpv). `hwdec` is mpv's --hwdec: "auto-safe" lets mpv pick
+    # whatever works; set it explicitly once tested ("vaapi", "nvdec", "no").
+    # `api` is mpv's --gpu-api; null keeps mpv's default.
+    video = {
+      hwdec = "auto-safe";
+      api = null;
+    };
   };
 
   features = {

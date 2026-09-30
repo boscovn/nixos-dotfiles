@@ -18,6 +18,7 @@ in
   imports = [
     ../wayland
     ../media.nix
+    ../mpv.nix
   ];
 
   xdg.mimeApps = {
@@ -47,18 +48,6 @@ in
   programs.foot.enable = true;
   programs.obsidian.enable = true;
   programs.zathura.enable = true;
-  programs.mpv = {
-    enable = true;
-    scripts = with pkgs.mpvScripts; [ mpris ];
-    config = {
-      save-position-on-quit = true;
-      vo = "gpu-next";
-      hwdec = "vaapi";
-      gpu-api = "opengl";
-      # hwdec-codecs = "all";
-      # cuda-decode-device = 0;
-    };
-  };
   programs.imv.enable = true;
   programs.google-chrome = {
     enable = true;

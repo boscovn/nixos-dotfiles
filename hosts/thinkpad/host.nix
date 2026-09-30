@@ -16,6 +16,12 @@
         nvidiaBusId = "PCI:1:0:0";
       };
     };
+    # Decode on the Intel iGPU: the MX150 exposes no usable NVDEC, and the
+    # iGPU avoids waking the dGPU.
+    video = {
+      hwdec = "vaapi";
+      api = "opengl";
+    };
   };
 
   features = {
