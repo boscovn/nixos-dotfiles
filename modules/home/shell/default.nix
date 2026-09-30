@@ -54,15 +54,9 @@ in
     syntaxHighlighting.enable = true;
     history.size = 10000;
     initContent = nnvimFn;
-    shellAliases =
-      rebuildAliases
-      // {
-        ls = "${pkgs.eza}/bin/eza";
-      }
-      // lib.optionalAttrs host.gpu.nvidia.prime.enable {
-        # Run mpv on the discrete GPU (PRIME render offload).
-        mpv = "nvidia-offload mpv";
-      };
+    shellAliases = rebuildAliases // {
+      ls = "${pkgs.eza}/bin/eza";
+    };
   };
   programs.bash = {
     enable = true;

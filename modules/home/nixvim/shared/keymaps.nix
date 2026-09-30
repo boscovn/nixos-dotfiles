@@ -20,6 +20,46 @@
       key = "<leader>sg";
       options.desc = "Search for a string in the project with telescope";
     }
+    {
+      key = "<leader>db";
+      action.__raw = ''function() require("dap").toggle_breakpoint() end'';
+      options.desc = "Dap: toggle breakpoint";
+    }
+    {
+      key = "<leader>dc";
+      action.__raw = ''function() require("dap").continue() end'';
+      options.desc = "Dap: start/continue";
+    }
+    {
+      key = "<leader>di";
+      action.__raw = ''function() require("dap").step_into() end'';
+      options.desc = "Dap: step into";
+    }
+    {
+      key = "<leader>do";
+      action.__raw = ''function() require("dap").step_over() end'';
+      options.desc = "Dap: step over";
+    }
+    {
+      key = "<leader>dO";
+      action.__raw = ''function() require("dap").step_out() end'';
+      options.desc = "Dap: step out";
+    }
+    {
+      key = "<leader>dr";
+      action.__raw = ''function() require("dap").repl.toggle() end'';
+      options.desc = "Dap: toggle repl";
+    }
+    {
+      key = "<leader>dx";
+      action.__raw = ''function() require("dap").terminate() end'';
+      options.desc = "Dap: terminate";
+    }
+    {
+      key = "<leader>du";
+      action.__raw = ''function() require("dapui").toggle() end'';
+      options.desc = "Dap: toggle ui";
+    }
   ];
   lsp.keymaps = [
     {

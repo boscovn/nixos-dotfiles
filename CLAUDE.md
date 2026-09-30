@@ -32,9 +32,9 @@ Everything host-specific comes from **host data** (below), not from arguments. `
 
 ### Host Data (parametrization)
 
-Each host is plain data, merged as `hosts/defaults.nix` ← `hosts/<name>/host.nix` (recursive), and passed to **every** NixOS and home-manager module as the `host` argument (so `reb` and standalone `hms` always agree). Fields: `system`, `user`, `os` (`"linux"`/`"darwin"`), `wsl`, `profiles` (below), `timeZone`, `locale`, `regionalLocale`, `keyMap`, `kbLayouts`, `gpu.{intel,nvidia}` (nvidia: `enable`, `cuda`, `globalCudaSupport`, `driver`, `open`, `prime.*`), and `features.{laptop,bluetooth,docker,gaming,kdeconnect,ssh}`. See `hosts/defaults.nix` for the full list and meanings.
+Each host is plain data, merged as `hosts/defaults.nix` ← `hosts/<name>/host.nix` (recursive), and passed to **every** NixOS and home-manager module as the `host` argument (so `reb` and standalone `hms` always agree). Fields: `system`, `user`, `os` (`"linux"`/`"darwin"`), `wsl`, `profiles` (below), `timeZone`, `locale`, `regionalLocale`, `keyMap`, `kbLayouts`, `gpu.{intel,nvidia}` (nvidia: `enable`, `cuda`, `globalCudaSupport`, `driver`, `open`, `prime.*`), and `features.{laptop,bluetooth,docker,dockerOnBoot,gaming,kdeconnect,ssh,nixbuild}`. See `hosts/defaults.nix` for the full list and meanings.
 
-Modules gate themselves on `host` (`lib.mkIf host.gpu.nvidia.enable`, `lib.optionalAttrs host.gpu.nvidia.prime.enable`, ...), so a machine without an Nvidia GPU never sees the nvidia driver, CUDA toolkit/cache, or the `nvidia-offload` alias. `globalCudaSupport` is off deliberately: it rebuilds CUDA-capable packages system-wide (e.g. firefox pulls a ~6 GiB CUDA onnxruntime) — use explicit packages like `pkgs.ollama-cuda` instead.
+Modules gate themselves on `host` (`lib.mkIf host.gpu.nvidia.enable`, ...), so a machine without an Nvidia GPU never sees the nvidia driver or the CUDA toolkit/cache. Video decoding deliberately stays on the iGPU (`hwdec = "vaapi"` in `profiles/desktop.nix`): the MX150 exposes no usable NVDEC (ffmpeg `-hwaccel cuda` reports "Hardware is lacking required capabilities" for H.264, HEVC and VP9), and decoding on the iGPU avoids waking the dGPU. `globalCudaSupport` is off deliberately: it rebuilds CUDA-capable packages system-wide (e.g. firefox pulls a ~6 GiB CUDA onnxruntime) — use explicit packages like `pkgs.ollama-cuda` instead.
 
 ### Home-manager profiles
 
@@ -67,7 +67,7 @@ modules/
 ├── stylix.nix              # shared stylix options (NixOS + standalone home-manager)
 ├── nixos/
 │   ├── common.nix          # Shared system config: boot, locale/tz/keymap (from host), user, audio
-│   ├── features.nix        # host.features.*: laptop, bluetooth, docker, gaming, kdeconnect, ssh
+│   ├── features.nix        # host.features.*: laptop, bluetooth, docker, gaming, kdeconnect, ssh, nixbuild
 │   ├── desktop/            # greetd (autologin) + Hyprland/UWSM (NixOS-level)
 │   └── hardware/
 │       ├── nvidia.nix          # gated on host.gpu.nvidia (driver, PRIME offload, CUDA toolkit/cache)

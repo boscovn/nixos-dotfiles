@@ -8,6 +8,11 @@ let
   gopassJsonapiWrapper = pkgs.writeShellScript "gopass-jsonapi-wrapper" ''
     exec ${pkgs.gopass-jsonapi}/bin/gopass-jsonapi listen
   '';
+  webExtensions = [
+    { id = "cjpalhdlnbpafiamejdnhcphjbkeiagm"; } # uBlock Origin
+    { id = "kkhfnlkhiapbiehimabddjbimfaijdhk"; } # Gopass Bridge
+    { id = "hfjbmagddngcpeloejdejnfgbamkjaeg"; } # vimium
+  ];
 in
 {
   imports = [
@@ -44,19 +49,23 @@ in
   programs.zathura.enable = true;
   programs.mpv = {
     enable = true;
-    scripts = [ pkgs.mpvScripts.mpris ];
+    scripts = with pkgs.mpvScripts; [ mpris ];
     config = {
       save-position-on-quit = true;
+      vo = "gpu-next";
+      hwdec = "vaapi";
+      gpu-api = "opengl";
+      # hwdec-codecs = "all";
+      # cuda-decode-device = 0;
     };
   };
   programs.imv.enable = true;
+  programs.google-chrome = {
+    enable = true;
+  };
   programs.brave = {
     enable = true;
-    extensions = [
-      { id = "cjpalhdlnbpafiamejdnhcphjbkeiagm"; } # uBlock Origin
-      { id = "kkhfnlkhiapbiehimabddjbimfaijdhk"; } # Gopass Bridge
-      { id = "hfjbmagddngcpeloejdejnfgbamkjaeg"; } # vimium
-    ];
+    extensions = webExtensions;
   };
   xdg.configFile."BraveSoftware/Brave-Browser/NativeMessagingHosts/com.justwatch.gopass.json".text =
     builtins.toJSON

@@ -14,6 +14,7 @@
     expandtab = true;
     autoindent = true;
     breakindent = true;
+    exrc = true;
   };
   lsp = {
     servers = {
@@ -116,6 +117,49 @@
     dap.enable = true;
     dap-ui.enable = true;
     dap-go.enable = true;
-    blink-cmp.enable = true;
+    # dap-python's own extraConfig already calls
+    # `require("dap-python").setup(adapterPythonPath, settings)`; leaving
+    # callSetup at its default (false) avoids a second, malformed call
+    # (nixvim's generic callSetup would pass `settings` as the path arg).
+    dap-python.enable = true;
+    # Gives lua_ls the `vim` global/runtime API wherever a Lua file is
+    # opened (init.lua, plugin dirs, or a project-local .nvim.lua under
+    # `exrc`) by lazily injecting $VIMRUNTIME as a library per workspace.
+    lazydev = {
+      enable = true;
+      settings.integrations.cmp = false; # we use blink-cmp, not nvim-cmp
+    };
+    blink-cmp = {
+      enable = true;
+      settings.sources = {
+        default = [
+          "lsp"
+          "path"
+          "snippets"
+          "buffer"
+          "lazydev"
+        ];
+        providers.lazydev = {
+          name = "LazyDev";
+          module = "lazydev.integrations.blink";
+          score_offset = 100; # show lazydev's vim/module completions first
+        };
+      };
+    };
   };
+  # nvim-dap-ui doesn't open/close itself; hook it to dap's lifecycle events.
+  extraConfigLua = ''
+    do
+      local dap, dapui = require("dap"), require("dapui")
+      dap.listeners.after.event_initialized["dapui_config"] = function()
+        dapui.open()
+      end
+      dap.listeners.before.event_terminated["dapui_config"] = function()
+        dapui.close()
+      end
+      dap.listeners.before.event_exited["dapui_config"] = function()
+        dapui.close()
+      end
+    end
+  '';
 }
