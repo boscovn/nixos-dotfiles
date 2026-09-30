@@ -11,13 +11,16 @@ let
   inherit (inputs) nixpkgs home-manager;
   inherit (config.my) user;
 
+  # allowUnfree everywhere; a host adds or overrides via hosts.<name>.nixpkgsConfig.
+  nixpkgsConfig = host: { allowUnfree = true; } // host.nixpkgsConfig;
+
   mkSystem =
     name: host:
     nixpkgs.lib.nixosSystem {
       inherit (host) system;
       inherit (host) specialArgs;
       modules = [
-        { nixpkgs.config = host.nixpkgsConfig; }
+        { nixpkgs.config = nixpkgsConfig host; }
         config.nixos.${name}
         home-manager.nixosModules.home-manager
         {
@@ -35,7 +38,7 @@ let
       # Same config `useGlobalPkgs` shares with the NixOS-embedded build.
       pkgs = import nixpkgs {
         inherit (host) system;
-        config = host.nixpkgsConfig;
+        config = nixpkgsConfig host;
       };
       extraSpecialArgs = host.specialArgs;
       modules = host.standaloneHomeModules ++ [ config.homeManager.${name} ];
@@ -54,7 +57,7 @@ in
           nixpkgsConfig = lib.mkOption {
             type = lib.types.attrs;
             default = { };
-            description = "nixpkgs config shared by the NixOS and standalone home-manager builds.";
+            description = "Extra nixpkgs config (on top of allowUnfree), shared by the NixOS and standalone home-manager builds, e.g. { cudaSupport = true; }.";
           };
           standaloneHomeModules = lib.mkOption {
             type = lib.types.listOf lib.types.deferredModule;

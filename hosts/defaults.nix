@@ -26,33 +26,4 @@
   # Console/X keymap, and the Hyprland layout list (first one is active).
   keyMap = "es";
   kbLayouts = "es,us";
-
-  gpu = {
-    intel.enable = false;
-    nvidia = {
-      enable = false;
-      # CUDA toolkit + the nixos-cuda binary cache. Use explicit packages such
-      # as `pkgs.ollama-cuda` for CUDA software.
-      cuda = false;
-      # nixpkgs `cudaSupport`: rebuilds every package that has a CUDA option
-      # with CUDA (e.g. firefox pulls a ~6 GiB CUDA onnxruntime). Almost never
-      # what you want; applies to `reb` and `hms` alike.
-      globalCudaSupport = false;
-      driver = "stable";
-      open = false;
-      # PRIME render offload for hybrid graphics (needs both bus ids).
-      prime = {
-        enable = false;
-        intelBusId = null;
-        nvidiaBusId = null;
-      };
-    };
-    # Video playback (mpv). `hwdec` is mpv's --hwdec: "auto-safe" lets mpv pick
-    # whatever works; set it explicitly once tested ("vaapi", "nvdec", "no").
-    # `api` is mpv's --gpu-api; null keeps mpv's default.
-    video = {
-      hwdec = "auto-safe";
-      api = null;
-    };
-  };
 }

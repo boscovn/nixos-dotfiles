@@ -18,7 +18,6 @@ in
   imports = [
     ../wayland
     ../media.nix
-    ../mpv.nix
   ];
 
   xdg.mimeApps = {

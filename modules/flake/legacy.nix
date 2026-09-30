@@ -20,12 +20,6 @@ in
 {
   hosts.thinkpad = {
     inherit (host) system;
-    nixpkgsConfig = {
-      allowUnfree = true;
-    }
-    // nixpkgs.lib.optionalAttrs (host.gpu.nvidia.enable && host.gpu.nvidia.globalCudaSupport) {
-      cudaSupport = true;
-    };
     standaloneHomeModules = [
       stylix.homeModules.stylix
       ../stylix.nix
