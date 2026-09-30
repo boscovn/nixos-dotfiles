@@ -4,13 +4,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-NixOS + Home Manager dotfiles, currently one host (a ThinkPad, x86_64-linux). Everything is declarative and parametrized per host: shared modules branch out from a common root, host directories hold hardware config and a small `host.nix` of data, and modules switch themselves on/off from that data.
+NixOS + Home Manager dotfiles, currently one host (a ThinkPad, x86_64-linux), organized with the **dendritic pattern**: every `.nix` file under `modules/` is a [flake-parts](https://flake.parts) module implementing one feature across every configuration class it touches (NixOS and/or home-manager). Hosts are compositions: importing a feature enables it.
 
 ## Key Commands
 
 ```bash
-# Rebuild and switch (also aliased as `reb` in zsh); `hms` for home-manager only
+# Rebuild and switch the system (+ embedded home-manager); aliased as `reb`
 sudo nixos-rebuild switch --flake ~/.dotfiles#thinkpad
+
+# Home-manager only, standalone; aliased as `hms`
+home-manager switch --flake ~/.dotfiles#bosco@thinkpad
+
+# Neovim from this repo's nixvim config without switching anything;
+# `nnvim` wraps this and skips the ~25s eval when the config is unchanged
+nix run ~/.dotfiles#nvim
 
 # Format all Nix files
 nix fmt
@@ -19,82 +26,59 @@ nix fmt
 nix flake check
 ```
 
+Flakes only see files git tracks: `git add` new files before building.
+
 ## Architecture
 
-### Entry Point
+### Entry point
 
-**`flake.nix`** defines inputs and two helpers, both taking just a hostname:
+`flake.nix` only declares inputs and hands everything to flake-parts:
+
 ```nix
-mkSystem { hostname = "thinkpad"; }   # NixOS + embedded home-manager  (reb)
-mkHome   { hostname = "thinkpad"; }   # standalone home-manager        (hms)
-```
-Everything host-specific comes from **host data** (below), not from arguments. `mkSystem` builds: `stylix` + `modules/nixos/common.nix` + `hosts/<hostname>` for the NixOS config, and `modules/home` as the Home Manager config. `nixpkgs.config` is derived once from host data (`nixpkgsConfig` in `flake.nix`) and shared by both, so `reb` and `hms` build the same package set.
-
-### Host Data (parametrization)
-
-Each host is plain data, merged as `hosts/defaults.nix` ← `hosts/<name>/host.nix` (recursive), and passed to **every** NixOS and home-manager module as the `host` argument (so `reb` and standalone `hms` always agree). Fields: `system`, `user`, `os` (`"linux"`/`"darwin"`), `wsl`, `profiles` (below), `timeZone`, `locale`, `regionalLocale`, `keyMap`, `kbLayouts`, `gpu.{intel,nvidia,video}` (nvidia: `enable`, `cuda`, `globalCudaSupport`, `driver`, `open`, `prime.*`; video: mpv `hwdec` and `api`), and `features.{laptop,bluetooth,docker,dockerOnBoot,gaming,kdeconnect,ssh,nixbuild}`. See `hosts/defaults.nix` for the full list and meanings.
-
-Modules gate themselves on `host` (`lib.mkIf host.gpu.nvidia.enable`, ...), so a machine without an Nvidia GPU never sees the nvidia driver or the CUDA toolkit/cache. Video decoding is per host (`gpu.video`, consumed by `modules/home/mpv.nix`; default `hwdec = "auto-safe"`). On the thinkpad it deliberately stays on the iGPU (`vaapi`): the MX150 exposes no usable NVDEC (ffmpeg `-hwaccel cuda` reports "Hardware is lacking required capabilities" for H.264, HEVC and VP9), and decoding on the iGPU avoids waking the dGPU. `globalCudaSupport` is off deliberately: it rebuilds CUDA-capable packages system-wide (e.g. firefox pulls a ~6 GiB CUDA onnxruntime) — use explicit packages like `pkgs.ollama-cuda` instead.
-
-### Home-manager profiles
-
-`modules/home/default.nix` is the single home-manager entry point for both `reb` (embedded) and `hms` (standalone). It always imports `profiles/core.nix`, then one file per name in `host.profiles` (`modules/home/profiles/<name>.nix`):
-
-- **core** (always): terminal-only and portable - shell, git, gh, gpg (+ `gpg-agent` on Linux, pinentry chosen per platform), nixvim, yazi, CLI tools (`tools.nix`). Nothing here may assume a Linux desktop.
-- **email**: terminal mail stack (aerc, mbsync, msmtp, notmuch, hydroxide). Thunderbird is added only when `desktop` is also present.
-- **desktop**: Linux GUI session - Hyprland (`wayland/`), browsers, media (`media.nix`), GUI apps, GUI fonts, `xdg.mimeApps`, gnome-keyring plumbing.
-
-A WSL, darwin or server host just omits `desktop`. `host.os` handles the remaining small platform differences (`home.homeDirectory`, `gpg-agent`, the `reb` alias, pinentry); stylix only auto-enables its GUI targets with `desktop`. There are deliberately no darwin/WSL hosts yet; to prove a change stays portable, temporarily add a throwaway `hosts/<x>/host.nix` (`{ os = "darwin"; system = "aarch64-darwin"; }`) plus a `homeConfigurations` entry and `nix eval ...activationPackage.drvPath` it (darwin can only be evaluated on Linux, and that is what catches Linux-only packages/options).
-
-### Adding a New Host
-
-1. Create `hosts/<hostname>/default.nix` — set `networking.hostName`, import `./hardware-configuration.nix` (and opt-in profiles like `modules/nixos/hardware/howdy.nix`)
-2. Create `hosts/<hostname>/host.nix` — only what differs from `hosts/defaults.nix` (may be `{ }`); set `profiles` (e.g. `[ "email" "desktop" ]`)
-3. Add the auto-generated `hosts/<hostname>/hardware-configuration.nix`
-4. Register in `flake.nix`: `nixosConfigurations.<hostname> = mkSystem { hostname = "<hostname>"; };` and `homeConfigurations."<user>@<hostname>" = mkHome { hostname = "<hostname>"; };`
-
-### Module Tree
-
-```
-hosts/
-├── defaults.nix            # baseline host data every host inherits
-└── thinkpad/
-    ├── default.nix         # hostname, hardware-configuration import, opt-in profiles
-    ├── host.nix            # thinkpad host data (gpu, features)
-    └── hardware-configuration.nix
-
-modules/
-├── stylix.nix              # shared stylix options (NixOS + standalone home-manager)
-├── nixos/
-│   ├── common.nix          # Shared system config: boot, locale/tz/keymap (from host), user, audio
-│   ├── features.nix        # host.features.*: laptop, bluetooth, docker, gaming, kdeconnect, ssh, nixbuild
-│   ├── desktop/            # greetd (autologin) + Hyprland/UWSM (NixOS-level)
-│   └── hardware/
-│       ├── nvidia.nix          # gated on host.gpu.nvidia (driver, PRIME offload, CUDA toolkit/cache)
-│       ├── intel-graphics.nix  # gated on host.gpu.intel (VA-API/VDPAU)
-│       └── howdy.nix           # opt-in profile, imported per host (currently paused)
-└── home/
-    ├── default.nix         # Entry point: always core, plus one profiles/<name>.nix per host.profiles
-    ├── profiles/           # core (portable terminal), email, desktop (Linux GUI session)
-    ├── mpv.nix             # mpv scripts + config; hwdec/gpu-api from host.gpu.video (desktop profile)
-    ├── tools.nix           # portable CLI tools (core): programs.<x>.enable where HM has a module, else home.packages
-    ├── wayland/            # Hyprland WM config, hypridle, hyprlock, ashell, fuzzel, ghostty
-    ├── nixvim/             # Neovim via nixvim (LSP, DAP, telescope, blink-cmp, keymaps)
-    ├── shell/              # Zsh, bash, starship, zoxide, atuin
-    └── email/              # aerc, mbsync, msmtp, notmuch, gopass
+outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+  imports = [ (inputs.import-tree ./modules) ];
+};
 ```
 
-### NixOS vs Home Manager Split
+[import-tree](https://github.com/vic/import-tree) imports every `.nix` file under `modules/` recursively, **except paths containing `/_`**. Use a `_` prefix for files that are not flake-parts modules: plain NixOS/home-manager modules imported by path (`_hardware-configuration.nix`, `nixvim/_shared/`). Inputs are written by hand in `flake.nix` (no flake-file).
 
-- `modules/nixos/` — system services, hardware, display manager, boot, kernel; no shared `environment.systemPackages` (only hardware-gated extras like the CUDA toolkit)
-- `modules/home/` — user programs, dotfiles, user services, **all user-facing packages**
+### Plumbing (`modules/flake/`)
 
-When adding something: if it needs root or is a system service → `modules/nixos/`. If it's user-space config or a CLI tool → `modules/home/` (prefer `programs.<name>.enable` when home-manager has the module, otherwise `home.packages` in `tools.nix`; GUI or Linux-only things belong in `profiles/desktop.nix`, never in core). Note packages in home-manager are not on root's PATH (`sudo` sessions).
+- **`slots.nix`**: declares `nixos.<name>` and `homeManager.<name>` (typed `deferredModule`). Features add to them; hosts import them. Each value is wrapped with a `key` (importing it twice is a no-op) and a `_class`, so importing a home-manager slot into NixOS (or vice versa) is an evaluation error.
+- **`hosts.nix`**: each `hosts.<name>` becomes `nixosConfigurations.<name>` (home-manager embedded; skipped when `hosts.<name>.nixos = false`) and `homeConfigurations."<user>@<name>"` (standalone). Both use the **same** `homeManager.<name>` module and the same nixpkgs config (`allowUnfree` plus `hosts.<name>.nixpkgsConfig`), so `reb` and `hms` cannot drift. It also sets `networking.hostName` and, for home-manager, the read-only `dotfiles.hostname` / `dotfiles.nixos`. `standaloneHomeModules` holds modules only the standalone build needs (stylix's home-manager module, which NixOS otherwise injects itself).
+- **`systems.nix`**, **`formatter.nix`**: flake systems and the treefmt formatter/check.
 
-### Special Args
+There are **no `specialArgs`**. Values shared across files come from the top-level flake-parts config, reached by closure: `config.my.{user,fullName,email}` (`modules/meta.nix`) and flake `inputs`. Inside a lower-level module, `config` is the NixOS/home-manager config, so bind top-level values before it (e.g. `{ config, ... }: let inherit (config.my) user; in { homeManager.base = { config, ... }: ...; }`).
 
-Both NixOS (`specialArgs`) and Home Manager (`extraSpecialArgs`) receive:
-- `host` — the merged host data described above (prefer this for anything host-specific)
-- `inputs` — flake inputs (needed by `modules/home/nixvim` for `inputs.nixvim.homeModules.nixvim`)
-- `hostname` — used in the `reb`/`hms` shell aliases in `modules/home/shell`
-- `user` — username string (same as `host.user`)
+### Features (`modules/features/`)
+
+A feature file writes to one or more slots. Small, related pieces merge under a shared **bundle** name instead of each getting its own name:
+
+- **`base`** (every host): `nixos.base` (boot, nix settings/caches, locale, user, network, stylix) and `homeManager.base` (shell, git/gh, gpg, CLI tools, nixvim, stylix's terminal targets).
+- **`gui`** (Linux desktop session): `nixos.gui` (greetd autologin, Hyprland, plymouth, keyring PAM, audio, fonts) and `homeManager.gui` (Hyprland lua config, hyprlock, hypridle, ashell, ghostty, apps, browsers, mpv, imv).
+
+Distinct, optional features have their own names: `nixos.{nvidia,nvidia-prime,cuda,intel-graphics,laptop,bluetooth,docker,gaming,kdeconnect,ssh,nixbuild,howdy}`, `homeManager.{email,waybar}`.
+
+Conventions:
+- **Importing enables.** No `enable` flags: a host that should not have a feature does not import it.
+- **Tunable values** are set by the feature with `lib.mkDefault` and overridden in the host file with plain options (e.g. mpv's `hwdec` defaults to `auto-safe`; the thinkpad sets `vaapi`).
+- **Cross-feature facts** are typed home-manager options, not host data: `dotfiles.gui` (declared in `base`, set by `gui`) drives the gpg pinentry, stylix `autoEnable` and Thunderbird; `dotfiles.kbLayouts` (Hyprland, default `es,us`).
+- **Platform differences** use the platform (`pkgs.stdenv.hostPlatform.isDarwin`/`isLinux`), e.g. `home.homeDirectory`, gpg-agent.
+- `base` must stay portable (no Linux-desktop assumptions); GUI and Linux-only things go in `gui`.
+
+### Hosts (`modules/hosts/<name>/`)
+
+- `features.nix`: what the host runs (`nixos.<name>.imports` / `homeManager.<name>.imports` lists).
+- `default.nix`: `hosts.<name>` (system, `nixos`, `nixpkgsConfig`) and host-specific settings (`system.stateVersion`, `home.stateVersion`, driver branch, PRIME bus ids, mpv decode), plus the `_hardware-configuration.nix` import.
+
+The thinkpad decodes video on the Intel iGPU (`vaapi`): its MX150 exposes no usable NVDEC (ffmpeg `-hwaccel cuda` reports "Hardware is lacking required capabilities" for H.264, HEVC and VP9), and the iGPU avoids waking the dGPU. nixpkgs' global `cudaSupport` is deliberately off (`nixos.cuda` only adds the toolkit and cache): it rebuilds every CUDA-capable package (firefox pulls a ~6 GiB CUDA onnxruntime); use explicit packages like `pkgs.ollama-cuda`.
+
+### Adding things
+
+- **A feature**: create `modules/features/<area>/<name>.nix` writing to `nixos.<name>` / `homeManager.<name>` (or into `base`/`gui`), then add it to the hosts' `features.nix`. `git add` it.
+- **A host**: `modules/hosts/<name>/default.nix` with `hosts.<name> = { ... };` and `nixos.<name>.imports = [ ./_hardware-configuration.nix ]` (NixOS hosts), plus `features.nix`. A darwin or non-NixOS WSL host sets `hosts.<name>.nixos = false` and imports only home-manager slots (typically `base`, not `gui`).
+- **Checking portability** (no darwin/WSL host exists yet): add a throwaway `modules/hosts/tmp/default.nix` with `hosts.tmp = { system = "aarch64-darwin"; nixos = false; };` and `homeManager.tmp = { imports = [ config.homeManager.base ]; home.stateVersion = "24.05"; };`, then `nix eval '.#homeConfigurations."bosco@tmp".activationPackage.drvPath'` (darwin can only be evaluated on Linux, which is what catches Linux-only packages/options). Delete it afterwards.
+
+### NixOS vs home-manager
+
+System services, hardware, boot, display manager, PAM → `nixos.*`. User programs, dotfiles, user services and **all user-facing packages** → `homeManager.*` (prefer `programs.<name>.enable` when home-manager has a module). There is no shared `environment.systemPackages` (only hardware-gated extras like the CUDA toolkit); home-manager packages are not on root's PATH (`sudo`).
