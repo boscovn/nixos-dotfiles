@@ -1,0 +1,26 @@
+{
+  "nixd": {
+    "command": "nixd",
+    "extensionToLanguage": {
+      ".nix": "nix"
+    },
+    "settings": {
+      "nixd": {
+        "nixpkgs": {
+          "expr": "import (builtins.getFlake \"/home/bosco/.dotfiles\").inputs.nixpkgs { }"
+        },
+        "formatting": {
+          "command": ["nixfmt"]
+        },
+        "options": {
+          "nixos": {
+            "expr": "(builtins.getFlake \"/home/bosco/.dotfiles\").nixosConfigurations.thinkpad.options"
+          },
+          "home-manager": {
+            "expr": "(builtins.getFlake \"/home/bosco/.dotfiles\").homeConfigurations.\"bosco@thinkpad\".options"
+          }
+        }
+      }
+    }
+  }
+}

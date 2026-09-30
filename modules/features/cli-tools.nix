@@ -29,6 +29,7 @@
           devenv
           gopass
           gopls
+          nixd
           jq
           nixfmt
           opensc

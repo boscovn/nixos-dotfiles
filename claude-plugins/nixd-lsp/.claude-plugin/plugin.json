@@ -1,0 +1,5 @@
+{
+  "name": "nixd-lsp",
+  "description": "nixd language server, with option completion from this flake's thinkpad configurations",
+  "version": "1.0.0"
+}

@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "dotfiles": {
+      "source": {
+        "source": "directory",
+        "path": "/home/bosco/.dotfiles/claude-plugins"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "nixd-lsp@dotfiles": true
+  }
+}

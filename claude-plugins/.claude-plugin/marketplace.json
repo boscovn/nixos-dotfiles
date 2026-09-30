@@ -1,0 +1,18 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "dotfiles",
+  "description": "Claude Code plugins for this dotfiles repo",
+  "owner": {
+    "name": "Bosco Vallejo-Nágera",
+    "email": "boscovn@protonmail.com"
+  },
+  "plugins": [
+    {
+      "name": "nixd-lsp",
+      "description": "nixd language server, with option completion from this flake's thinkpad configurations",
+      "version": "1.0.0",
+      "source": "./nixd-lsp",
+      "category": "development"
+    }
+  ]
+}
