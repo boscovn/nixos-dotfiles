@@ -1,9 +1,11 @@
 # ThinkPad: Intel UHD 620 + Nvidia MX150 (PRIME offload).
-{ config, ... }:
 {
+  hosts.thinkpad = { };
+
   nixos.thinkpad =
     { config, ... }:
     {
+      imports = [ ./_hardware-configuration.nix ];
       system.stateVersion = "24.05";
 
       hardware.nvidia = {

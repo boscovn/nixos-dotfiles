@@ -1,6 +1,0 @@
-{
-  profiles = [
-    "email"
-    "desktop"
-  ];
-}

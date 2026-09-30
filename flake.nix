@@ -27,11 +27,6 @@
   outputs =
     inputs:
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
-      imports = [
-        # modules/{nixos,home,stylix.nix} are the legacy tree, not flake-parts
-        # modules; they are wired in by modules/flake/legacy.nix. (The regex
-        # is matched against the path relative to ./modules.)
-        ((inputs.import-tree.matchNot "/((nixos|home)/.*|stylix\\.nix)") ./modules)
-      ];
+      imports = [ (inputs.import-tree ./modules) ];
     };
 }

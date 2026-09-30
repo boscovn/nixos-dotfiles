@@ -38,7 +38,6 @@ let
     name: host:
     nixpkgs.lib.nixosSystem {
       inherit (host) system;
-      inherit (host) specialArgs;
       modules = [
         {
           nixpkgs.config = nixpkgsConfig host;
@@ -53,7 +52,6 @@ let
             (hostModule name host)
             config.homeManager.${name}
           ];
-          home-manager.extraSpecialArgs = host.specialArgs;
         }
       ];
     };
@@ -66,7 +64,6 @@ let
         inherit (host) system;
         config = nixpkgsConfig host;
       };
-      extraSpecialArgs = host.specialArgs;
       modules = config.standaloneHomeModules ++ [
         (hostModule name host)
         config.homeManager.${name}
@@ -101,11 +98,6 @@ in
             type = lib.types.attrs;
             default = { };
             description = "Extra nixpkgs config (on top of allowUnfree), shared by the NixOS and standalone home-manager builds, e.g. { cudaSupport = true; }.";
-          };
-          # Transitional: the legacy modules still expect these module args.
-          specialArgs = lib.mkOption {
-            type = lib.types.attrs;
-            default = { };
           };
         };
       }
