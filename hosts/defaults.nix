@@ -55,16 +55,4 @@
       api = null;
     };
   };
-
-  features = {
-    laptop = false; # tlp, upower, lid-switch handling
-    bluetooth = false;
-    docker = false;
-    dockerOnBoot = false;
-    gaming = false; # steam
-    kdeconnect = false;
-    ssh = false;
-    # Offload builds to nixbuild.net (needs an account with your key added).
-    nixbuild = false;
-  };
 }

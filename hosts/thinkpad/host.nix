@@ -23,15 +23,4 @@
       api = "opengl";
     };
   };
-
-  features = {
-    laptop = true;
-    bluetooth = true;
-    docker = true;
-    dockerOnBoot = false;
-    gaming = true;
-    kdeconnect = true;
-    ssh = true;
-    nixbuild = true;
-  };
 }

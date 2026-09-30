@@ -6,7 +6,6 @@
 {
   imports = [
     ./desktop
-    ./features.nix
     ./hardware/nvidia.nix
     ./hardware/intel-graphics.nix
     ../stylix.nix
