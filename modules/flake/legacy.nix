@@ -27,6 +27,4 @@ in
   };
 
   nixos.thinkpad.imports = [ ../../hosts/thinkpad ];
-
-  homeManager.thinkpad.imports = [ ../home ];
 }

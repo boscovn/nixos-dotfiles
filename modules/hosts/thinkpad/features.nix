@@ -20,7 +20,7 @@
 
   homeManager.thinkpad.imports = with config.homeManager; [
     base
+    gui
     email
-    mpv
   ];
 }

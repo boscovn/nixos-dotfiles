@@ -1,0 +1,28 @@
+# Desktop applications and Linux hardware tools.
+{
+  homeManager.gui =
+    { pkgs, ... }:
+    {
+      home.packages = with pkgs; [
+        android-tools
+        corefonts
+        firefox
+        kdePackages.dolphin
+        liberation_ttf
+        libva-utils
+        onlyoffice-desktopeditors
+        pavucontrol
+        telegram-desktop
+        usbutils
+        v4l-utils
+        vista-fonts
+      ];
+      programs.foot.enable = true;
+      programs.obsidian.enable = true;
+      programs.zathura.enable = true;
+      xdg.mimeApps = {
+        enable = true;
+        defaultApplications."application/pdf" = [ "org.pwmt.zathura.desktop" ];
+      };
+    };
+}
