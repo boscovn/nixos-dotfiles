@@ -13,7 +13,7 @@ let
         package = pkgs.nerd-fonts.fira-code;
         name = "FiraCodeNerdFont";
       };
-      stylix.image = ../../gnus.JPG;
+      stylix.image = ../../assets/wallpapers/gnus.JPG;
     };
 in
 {
