@@ -49,5 +49,37 @@ in
       };
       networking.firewall.allowedTCPPorts = [ 22 ];
     })
+
+    (lib.mkIf f.nixbuild {
+      # Remote builds are run by the nix-daemon as root, so this goes in the
+      # system-wide ssh_config and points at the user's key (which must have no
+      # passphrase: the daemon has no ssh-agent).
+      programs.ssh.extraConfig = ''
+        Host eu.nixbuild.net
+          ServerAliveInterval 60
+          IdentityFile /home/${host.user}/.ssh/id_ed25519
+      '';
+      programs.ssh.knownHosts.nixbuild = {
+        hostNames = [ "eu.nixbuild.net" ];
+        publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPIQCZc54poJ8vqawd8TraNryQeJnvH1eLpIDgbiqymM";
+      };
+      nix = {
+        distributedBuilds = true;
+        buildMachines = [
+          {
+            hostName = "eu.nixbuild.net";
+            system = "x86_64-linux";
+            maxJobs = 100;
+            supportedFeatures = [
+              "benchmark"
+              "big-parallel"
+            ];
+          }
+        ];
+        # Let the builder fetch dependencies from binary caches itself instead
+        # of uploading them from this machine.
+        settings.builders-use-substitutes = true;
+      };
+    })
   ];
 }

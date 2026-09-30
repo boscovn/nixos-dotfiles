@@ -26,5 +26,6 @@
     gaming = true;
     kdeconnect = true;
     ssh = true;
+    nixbuild = true;
   };
 }

@@ -57,5 +57,7 @@
     gaming = false; # steam
     kdeconnect = false;
     ssh = false;
+    # Offload builds to nixbuild.net (needs an account with your key added).
+    nixbuild = false;
   };
 }
