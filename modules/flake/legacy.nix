@@ -29,21 +29,4 @@ in
   nixos.thinkpad.imports = [ ../../hosts/thinkpad ];
 
   homeManager.thinkpad.imports = [ ../home ];
-
-  # Standalone Neovim, built straight from the same nixvim config used by
-  # modules/home/nixvim, independent of home-manager/NixOS.
-  # `nix run ~/.dotfiles#nvim` rebuilds/tests just the editor config.
-  perSystem =
-    { system, ... }:
-    {
-      packages.nvim = inputs.nixvim.legacyPackages.${system}.makeNixvimWithModule {
-        pkgs = nixpkgs.legacyPackages.${system};
-        extraSpecialArgs = { inherit inputs; };
-        module = [
-          { nixpkgs.source = nixpkgs; }
-          ../home/nixvim/shared/config.nix
-          ../home/nixvim/shared/keymaps.nix
-        ];
-      };
-    };
 }

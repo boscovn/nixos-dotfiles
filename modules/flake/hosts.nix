@@ -14,19 +14,45 @@ let
   # allowUnfree everywhere; a host adds or overrides via hosts.<name>.nixpkgsConfig.
   nixpkgsConfig = host: { allowUnfree = true; } // host.nixpkgsConfig;
 
+  # Facts about the host that home-manager modules may need, as read-only
+  # options, set for both the embedded and the standalone build.
+  hostModule = name: host: { lib, ... }: {
+    options.dotfiles = {
+      hostname = lib.mkOption {
+        type = lib.types.str;
+        readOnly = true;
+      };
+      nixos = lib.mkOption {
+        type = lib.types.bool;
+        readOnly = true;
+        description = "Whether this host is a NixOS system (has `reb`).";
+      };
+    };
+    config.dotfiles = {
+      hostname = name;
+      inherit (host) nixos;
+    };
+  };
+
   mkSystem =
     name: host:
     nixpkgs.lib.nixosSystem {
       inherit (host) system;
       inherit (host) specialArgs;
       modules = [
-        { nixpkgs.config = nixpkgsConfig host; }
+        {
+          nixpkgs.config = nixpkgsConfig host;
+          networking.hostName = name;
+        }
         config.nixos.${name}
         home-manager.nixosModules.home-manager
         {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
-          home-manager.users.${user} = config.homeManager.${name};
+          home-manager.users.${user}.imports = [
+            (hostModule name host)
+            config.homeManager.${name}
+          ];
           home-manager.extraSpecialArgs = host.specialArgs;
         }
       ];
@@ -41,7 +67,10 @@ let
         config = nixpkgsConfig host;
       };
       extraSpecialArgs = host.specialArgs;
-      modules = config.standaloneHomeModules ++ [ config.homeManager.${name} ];
+      modules = config.standaloneHomeModules ++ [
+        (hostModule name host)
+        config.homeManager.${name}
+      ];
     };
 in
 {
@@ -63,6 +92,11 @@ in
             type = lib.types.str;
             default = "x86_64-linux";
           };
+          nixos = lib.mkOption {
+            type = lib.types.bool;
+            default = true;
+            description = "Build a NixOS system for this host (false: standalone home-manager only, e.g. darwin or non-NixOS WSL).";
+          };
           nixpkgsConfig = lib.mkOption {
             type = lib.types.attrs;
             default = { };
@@ -79,7 +113,7 @@ in
   };
 
   config.flake = {
-    nixosConfigurations = lib.mapAttrs mkSystem config.hosts;
+    nixosConfigurations = lib.mapAttrs mkSystem (lib.filterAttrs (_: host: host.nixos) config.hosts);
     homeConfigurations = lib.mapAttrs' (
       name: host: lib.nameValuePair "${user}@${name}" (mkHome name host)
     ) config.hosts;

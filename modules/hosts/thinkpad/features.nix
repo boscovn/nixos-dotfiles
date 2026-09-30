@@ -19,6 +19,8 @@
   ];
 
   homeManager.thinkpad.imports = with config.homeManager; [
+    base
+    email
     mpv
   ];
 }

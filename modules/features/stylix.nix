@@ -31,4 +31,19 @@ in
     inputs.stylix.homeModules.stylix
     theme
   ];
+
+  # stylix themes every app it knows about by default, which on a terminal-only
+  # host (WSL/darwin/server) generates config for GUI apps that are not even
+  # installed (gtk, blender, vencord, ...). Only auto-enable with the gui
+  # bundle; otherwise theme just the terminal tools.
+  homeManager.base =
+    { config, lib, ... }:
+    {
+      stylix.autoEnable = lib.mkDefault config.dotfiles.gui;
+      stylix.targets = {
+        bat.enable = true;
+        yazi.enable = true;
+        starship.enable = true;
+      };
+    };
 }

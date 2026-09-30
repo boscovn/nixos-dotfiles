@@ -16,6 +16,8 @@
       };
     };
 
+  homeManager.thinkpad.home.stateVersion = "24.05";
+
   homeManager.thinkpad.programs.mpv.config = {
     # Decode on the Intel iGPU: the MX150 exposes no usable NVDEC (ffmpeg
     # -hwaccel cuda: "Hardware is lacking required capabilities" for H.264,
