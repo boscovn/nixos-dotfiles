@@ -14,145 +14,19 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     treefmt-nix.url = "github:numtide/treefmt-nix";
+    flake-parts = {
+      url = "github:hercules-ci/flake-parts";
+      inputs.nixpkgs-lib.follows = "nixpkgs";
+    };
+    import-tree.url = "github:vic/import-tree";
     stylix.url = "github:danth/stylix";
   };
 
+  # Every .nix file under modules/ is a flake-parts module (import-tree);
+  # paths containing `/_` are skipped. See CLAUDE.md.
   outputs =
-    {
-      self,
-      nixpkgs,
-      home-manager,
-      treefmt-nix,
-      nixvim,
-      stylix,
-      ...
-    }@inputs:
-    let
-      eachSystem = nixpkgs.lib.genAttrs [
-        "x86_64-linux"
-        "aarch64-linux"
-      ];
-      treefmtEval = eachSystem (
-        system: treefmt-nix.lib.evalModule nixpkgs.legacyPackages.${system} ./treefmt.nix
-      );
-
-      # Host data: hosts/defaults.nix overridden by hosts/<name>/host.nix.
-      # Passed to every NixOS and home-manager module as the `host` argument.
-      mkHost =
-        name:
-        (nixpkgs.lib.recursiveUpdate (import ./hosts/defaults.nix) (import ./hosts/${name}/host.nix))
-        // {
-          hostname = name;
-        };
-
-      # Single source of truth for nixpkgs config, so `reb` and `hms` build the
-      # same package set (they used to disagree on cudaSupport).
-      nixpkgsConfig =
-        host:
-        {
-          allowUnfree = true;
-        }
-        // nixpkgs.lib.optionalAttrs (host.gpu.nvidia.enable && host.gpu.nvidia.globalCudaSupport) {
-          cudaSupport = true;
-        };
-
-      mkSystem =
-        { hostname }:
-        let
-          host = mkHost hostname;
-          inherit (host) user;
-        in
-        nixpkgs.lib.nixosSystem {
-          inherit (host) system;
-          specialArgs = {
-            inherit
-              inputs
-              host
-              hostname
-              user
-              ;
-          };
-          modules = [
-            { nixpkgs.config = nixpkgsConfig host; }
-            stylix.nixosModules.stylix
-            ./modules/nixos/common.nix
-            ./hosts/${hostname}
-            home-manager.nixosModules.home-manager
-            {
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-              home-manager.users.${user} = import ./modules/home;
-              home-manager.extraSpecialArgs = {
-                inherit
-                  inputs
-                  host
-                  hostname
-                  user
-                  ;
-              };
-            }
-          ];
-        };
-
-      mkHome =
-        { hostname }:
-        let
-          host = mkHost hostname;
-          inherit (host) user;
-        in
-        home-manager.lib.homeManagerConfiguration {
-          # Same config `useGlobalPkgs` shares with the NixOS-embedded build.
-          pkgs = import nixpkgs {
-            inherit (host) system;
-            config = nixpkgsConfig host;
-          };
-          extraSpecialArgs = {
-            inherit
-              inputs
-              host
-              hostname
-              user
-              ;
-          };
-          modules = [
-            stylix.homeModules.stylix
-            ./modules/stylix.nix
-            ./modules/home
-          ];
-        };
-    in
-    {
-      formatter = eachSystem (system: treefmtEval.${system}.config.build.wrapper);
-      checks = eachSystem (system: {
-        formatting = treefmtEval.${system}.config.build.check self;
-      });
-
-      # Standalone Neovim, built straight from the same nixvim config used by
-      # modules/home/nixvim, independent of home-manager/NixOS.
-      # `nix run ~/.dotfiles#nvim` rebuilds/tests just the editor config.
-      packages = eachSystem (system: {
-        nvim = nixvim.legacyPackages.${system}.makeNixvimWithModule {
-          pkgs = nixpkgs.legacyPackages.${system};
-          extraSpecialArgs = { inherit inputs; };
-          module = [
-            { nixpkgs.source = nixpkgs; }
-            ./modules/home/nixvim/shared/config.nix
-            ./modules/home/nixvim/shared/keymaps.nix
-          ];
-        };
-      });
-
-      nixosConfigurations = {
-        thinkpad = mkSystem { hostname = "thinkpad"; };
-        # Example: adding another machine is one line:
-        # desktop = mkSystem { hostname = "desktop"; };  # + hosts/desktop/{default,host}.nix
-      };
-
-      # Standalone Home Manager, independent of nixos-rebuild.
-      # `home-manager switch --flake ~/.dotfiles#bosco@thinkpad` (aliased `hms`)
-      # applies user-space changes without a full system rebuild.
-      homeConfigurations = {
-        "bosco@thinkpad" = mkHome { hostname = "thinkpad"; };
-      };
+    inputs:
+    inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+      imports = [ (inputs.import-tree ./modules/flake) ];
     };
 }
