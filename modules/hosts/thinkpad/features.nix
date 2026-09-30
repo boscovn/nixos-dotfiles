@@ -15,6 +15,7 @@
     kdeconnect
     ssh
     nixbuild
+    # howdy  # paused: face match kept returning "no match"
   ];
 
   homeManager.thinkpad.imports = with config.homeManager; [

@@ -41,10 +41,19 @@ let
         config = nixpkgsConfig host;
       };
       extraSpecialArgs = host.specialArgs;
-      modules = host.standaloneHomeModules ++ [ config.homeManager.${name} ];
+      modules = config.standaloneHomeModules ++ [ config.homeManager.${name} ];
     };
 in
 {
+  options.standaloneHomeModules = lib.mkOption {
+    type = lib.types.listOf lib.types.raw;
+    default = [ ];
+    description = ''
+      Home-manager modules only for standalone builds (`hms`), for things the
+      NixOS side injects into embedded home-manager by itself (stylix).
+    '';
+  };
+
   options.hosts = lib.mkOption {
     default = { };
     type = lib.types.attrsOf (
@@ -58,14 +67,6 @@ in
             type = lib.types.attrs;
             default = { };
             description = "Extra nixpkgs config (on top of allowUnfree), shared by the NixOS and standalone home-manager builds, e.g. { cudaSupport = true; }.";
-          };
-          standaloneHomeModules = lib.mkOption {
-            type = lib.types.listOf lib.types.deferredModule;
-            default = [ ];
-            description = ''
-              Home-manager modules only for the standalone build, for things the
-              NixOS side injects into embedded home-manager by itself (stylix).
-            '';
           };
           # Transitional: the legacy modules still expect these module args.
           specialArgs = lib.mkOption {

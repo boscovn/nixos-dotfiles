@@ -3,7 +3,7 @@
 # time. Deleted once empty.
 { inputs, ... }:
 let
-  inherit (inputs) nixpkgs stylix;
+  inherit (inputs) nixpkgs;
 
   # Host data: hosts/defaults.nix overridden by hosts/<name>/host.nix.
   mkHost =
@@ -20,21 +20,13 @@ in
 {
   hosts.thinkpad = {
     inherit (host) system;
-    standaloneHomeModules = [
-      stylix.homeModules.stylix
-      ../stylix.nix
-    ];
     specialArgs = {
       inherit inputs host;
       inherit (host) hostname user;
     };
   };
 
-  nixos.thinkpad.imports = [
-    stylix.nixosModules.stylix
-    ../nixos/common.nix
-    ../../hosts/thinkpad
-  ];
+  nixos.thinkpad.imports = [ ../../hosts/thinkpad ];
 
   homeManager.thinkpad.imports = [ ../home ];
 
