@@ -19,11 +19,6 @@
   # A WSL or darwin host simply omits "desktop".
   profiles = [ ];
 
-  timeZone = "Europe/Madrid";
-  locale = "en_GB.UTF-8";
-  # Locale used for LC_* categories (dates, currency, paper size, ...).
-  regionalLocale = "es_ES.UTF-8";
-  # Console/X keymap, and the Hyprland layout list (first one is active).
-  keyMap = "es";
+  # Hyprland keyboard layouts (first one is active).
   kbLayouts = "es,us";
 }

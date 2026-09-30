@@ -2,6 +2,8 @@
 { config, ... }:
 {
   nixos.thinkpad.imports = with config.nixos; [
+    base
+    gui
     nvidia
     nvidia-prime
     cuda

@@ -4,6 +4,8 @@
   nixos.thinkpad =
     { config, ... }:
     {
+      system.stateVersion = "24.05";
+
       hardware.nvidia = {
         # Pascal (MX150) support ended with the 580 driver branch.
         package = config.boot.kernelPackages.nvidiaPackages.legacy_580;
