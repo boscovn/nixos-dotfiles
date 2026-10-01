@@ -6,7 +6,7 @@
         enable = true;
         settings = {
           general = {
-            after_sleep_cmd = "hyprctl dispatch 'hl.dsp.dpms(\"on\")'";
+            after_sleep_cmd = "hyprctl dispatch 'hl.dsp.dpms({ action = \"on\" })'";
             ignore_dbus_inhibit = false;
             lock_cmd = "hyprlock";
           };
@@ -23,10 +23,10 @@
               # rejects the traditional space-separated "dpms off" form with a
               # parse error - confirmed via `hyprctl dispatch dpms off` erroring
               # on this machine's Hyprland 0.56.2. `hl.dsp.dpms(...)` is the
-              # dispatcher called as a Lua function instead; verified it flips
-              # `hyprctl monitors`' dpmsStatus correctly.
-              on-timeout = "hyprctl dispatch 'hl.dsp.dpms(\"off\")'";
-              on-resume = "hyprctl dispatch 'hl.dsp.dpms(\"on\")'";
+              # dispatcher called as a Lua function instead. It takes a table:
+              # a plain string (`dpms("off")`) is ignored and means *toggle*.
+              on-timeout = "hyprctl dispatch 'hl.dsp.dpms({ action = \"off\" })'";
+              on-resume = "hyprctl dispatch 'hl.dsp.dpms({ action = \"on\" })'";
             }
           ];
         };

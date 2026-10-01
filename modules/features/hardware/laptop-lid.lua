@@ -89,7 +89,7 @@ end
 
 local function lock_and_blank()
   hl.exec_cmd("loginctl lock-session")
-  hl.dispatch(hl.dsp.dpms("off"))
+  hl.dispatch(hl.dsp.dpms({ action = "off" }))
 end
 
 hl.bind("switch:on:Lid Switch", function()
@@ -102,7 +102,7 @@ end, { locked = true })
 
 hl.bind("switch:off:Lid Switch", function()
   enable_panel()
-  hl.dispatch(hl.dsp.dpms("on"))
+  hl.dispatch(hl.dsp.dpms({ action = "on" }))
 end, { locked = true })
 
 -- Docking with the lid closed (also at login, as monitors appear).
@@ -121,7 +121,7 @@ hl.on("monitor.removed", function()
     hl.exec_cmd("loginctl lock-session")
     hl.timer(function()
       if lid_closed() then
-        hl.dispatch(hl.dsp.dpms("off"))
+        hl.dispatch(hl.dsp.dpms({ action = "off" }))
       end
     end, { timeout = 1000, type = "oneshot" })
   end
