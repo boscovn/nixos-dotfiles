@@ -49,18 +49,40 @@ local function lid_closed()
   return closed
 end
 
+-- Hyprland re-lays out every monitor when one is disabled or enabled, but only
+-- re-places the layer surfaces (wallpaper, bar) of monitors whose rule
+-- changed: the others' would stay at their old position, shifted. So their
+-- rules change too: pinned where they are while the panel is off (nothing
+-- moves), back to auto when it returns.
+local function others()
+  local list = {}
+  for _, m in ipairs(hl.get_monitors()) do
+    if not is_internal(m.name) then
+      list[#list + 1] = m
+    end
+  end
+  return list
+end
+
 local function disable_panel()
   if internal and not panel_disabled then
+    for _, m in ipairs(others()) do
+      hl.monitor({ output = m.name, position = m.x .. "x" .. m.y })
+    end
     hl.monitor({ output = internal, disabled = true })
     panel_disabled = true
   end
 end
 
--- Same as Hyprland's default for a monitor without a rule. hl.monitor updates
--- the output's existing rule field by field, so `disabled` must be reset.
+-- The panel returns at 0x0: explicit positions are placed before auto ones,
+-- so the others go back to its right, as when the session started.
+-- hl.monitor updates an output's rule field by field, so `disabled` is reset.
 local function enable_panel()
   if internal and panel_disabled then
-    hl.monitor({ output = internal, disabled = false, mode = "preferred", position = "auto", scale = "auto" })
+    hl.monitor({ output = internal, disabled = false, mode = "preferred", position = "0x0", scale = "auto" })
+    for _, m in ipairs(others()) do
+      hl.monitor({ output = m.name, position = "auto" })
+    end
     panel_disabled = false
   end
 end
