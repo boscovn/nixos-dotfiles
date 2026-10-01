@@ -7,6 +7,14 @@
 
     programs.hyprland.enable = true;
     programs.hyprland.withUWSM = true;
+    # Becomes /etc/xdg/xdg-desktop-portal/hyprland-portals.conf, which replaces
+    # the one Hyprland ships, so the full routing lives here.
+    xdg.portal.config.hyprland = {
+      default = [ "gtk" ];
+      "org.freedesktop.impl.portal.ScreenCast" = [ "hyprland" ];
+      "org.freedesktop.impl.portal.Screenshot" = [ "hyprland" ];
+      "org.freedesktop.impl.portal.GlobalShortcuts" = [ "hyprland" ];
+    };
     security.pam.services.hyprlock.enableGnomeKeyring = true;
   };
 

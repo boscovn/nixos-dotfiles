@@ -236,6 +236,43 @@
         "type": "github"
       }
     },
+    "hypr-kdeconnect-fix": {
+      "inputs": {
+        "hypr-kdeconnect-fix-src": "hypr-kdeconnect-fix-src",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1790843088,
+        "narHash": "sha256-p4F4FPDouNecAT42hiL84HZcygjjrTL1EJfECjCevrY=",
+        "owner": "boscovn",
+        "repo": "hypr-kdeconnect-fix-flake",
+        "rev": "0fb69149d13ddd154d0a32caf62f1dfea4449fe2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "boscovn",
+        "repo": "hypr-kdeconnect-fix-flake",
+        "type": "github"
+      }
+    },
+    "hypr-kdeconnect-fix-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1790301701,
+        "narHash": "sha256-fswdn3iq1iCXALLWC/p5EgRYbHIMgNHWEhxEtbHtCFY=",
+        "owner": "gfhdhytghd",
+        "repo": "hypr-kdeconnect-fix",
+        "rev": "362b904235c1b1d679eef73cbd5ad08d313d8954",
+        "type": "github"
+      },
+      "original": {
+        "owner": "gfhdhytghd",
+        "repo": "hypr-kdeconnect-fix",
+        "type": "github"
+      }
+    },
     "import-tree": {
       "locked": {
         "lastModified": 1788467110,
@@ -367,6 +404,7 @@
         "ashell": "ashell",
         "flake-parts": "flake-parts",
         "home-manager": "home-manager",
+        "hypr-kdeconnect-fix": "hypr-kdeconnect-fix",
         "import-tree": "import-tree",
         "nixpkgs": "nixpkgs_2",
         "nixvim": "nixvim",

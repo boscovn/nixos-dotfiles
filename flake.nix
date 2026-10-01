@@ -19,6 +19,10 @@
       inputs.nixpkgs-lib.follows = "nixpkgs";
     };
     import-tree.url = "github:vic/import-tree";
+    hypr-kdeconnect-fix = {
+      url = "github:boscovn/hypr-kdeconnect-fix-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     stylix.url = "github:danth/stylix";
   };
 
