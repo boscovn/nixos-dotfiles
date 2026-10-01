@@ -139,7 +139,7 @@
               (bind (mod "D") (exec menu))
               (bind (mod "Escape") (exec lock))
               (bind (mod "P") (dsp' "window.pseudo"))
-              # (bind (mod "M") (dsp "layout" "togglesplit"))
+              # SUPER + M toggles display mirroring (display-mirror.lua).
               (bind (mod "h") (dsp "focus" { direction = "left"; }))
               (bind (mod "l") (dsp "focus" { direction = "right"; }))
               (bind (mod "j") (dsp "focus" { direction = "down"; }))
@@ -170,6 +170,10 @@
               (mediaKey "XF86MonBrightnessUp" "brightness-up" "${brightnessctl} set 5%+")
               (mediaKey "XF86MonBrightnessDown" "brightness-down" "${brightnessctl} set 5%-")
             ];
+
+            # SUPER + M: mirror the displays or go back to extended; Lua because
+            # it decides at runtime from the connected monitors.
+            extraLuaFiles.display-mirror = ./display-mirror.lua;
           };
         services.hyprpaper.enable = true;
       };
