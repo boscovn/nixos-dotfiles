@@ -1,7 +1,3 @@
-{ config, ... }:
-let
-  inherit (config.my) user;
-in
 {
   homeManager.base =
     {
@@ -11,8 +7,6 @@ in
       ...
     }:
     let
-      inherit (config.dotfiles) hostname;
-
       # `nix run ~/.dotfiles#nvim` re-evaluates nixvim's whole plugin option tree
       # on every invocation (~25s+ on this machine), even when nothing changed.
       # Hash the inputs that actually affect the built package and skip straight
@@ -41,14 +35,15 @@ in
         }
       '';
 
-      # `reb` (nixos-rebuild) only on NixOS hosts; standalone home-manager
-      # (`hms`) works everywhere.
+      # Through nh (base/nix.nix), which finds the flake (NH_FLAKE) and the
+      # `<hostname>` / `<user>@<hostname>` configurations itself. `reb` only on
+      # NixOS hosts; standalone home-manager (`hms`) works everywhere.
       rebuildAliases =
         lib.optionalAttrs config.dotfiles.nixos {
-          reb = "sudo nixos-rebuild switch --flake ~/.dotfiles#${hostname} --impure";
+          reb = "nh os switch";
         }
         // {
-          hms = "home-manager switch --flake ~/.dotfiles#${user}@${hostname}";
+          hms = "nh home switch";
         };
     in
     {
