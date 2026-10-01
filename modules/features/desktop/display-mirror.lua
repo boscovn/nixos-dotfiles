@@ -7,19 +7,22 @@ local function is_internal(name)
   return name:match("^eDP") ~= nil or name:match("^LVDS") ~= nil or name:match("^DSI") ~= nil
 end
 
--- Hyprland's default for a monitor without a rule.
+-- Hyprland's default for a monitor without a rule. hl.monitor updates an
+-- output's existing rule field by field, so the mirror must be cleared
+-- explicitly ("" = mirror nothing).
 local function extend(name)
-  hl.monitor({ output = name, mode = "preferred", position = "auto", scale = "auto" })
+  hl.monitor({ output = name, mode = "preferred", position = "auto", scale = "auto", mirror = "" })
 end
 
 local function toggle_mirror()
   local monitors = hl.get_monitors()
 
+  -- Mirroring monitors aren't in hl.get_monitors(); their source lists them.
   local mirroring = false
   for _, m in ipairs(monitors) do
-    if m.is_mirror then
+    for _, mirror in ipairs(m.mirrors) do
       mirroring = true
-      extend(m.name)
+      extend(mirror.name)
     end
   end
   if mirroring or #monitors < 2 then

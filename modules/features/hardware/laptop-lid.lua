@@ -56,10 +56,11 @@ local function disable_panel()
   end
 end
 
--- Same as Hyprland's default for a monitor without a rule.
+-- Same as Hyprland's default for a monitor without a rule. hl.monitor updates
+-- the output's existing rule field by field, so `disabled` must be reset.
 local function enable_panel()
   if internal and panel_disabled then
-    hl.monitor({ output = internal, mode = "preferred", position = "auto", scale = "auto" })
+    hl.monitor({ output = internal, disabled = false, mode = "preferred", position = "auto", scale = "auto" })
     panel_disabled = false
   end
 end
