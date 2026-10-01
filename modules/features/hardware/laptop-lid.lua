@@ -14,9 +14,25 @@ local function is_internal(name)
   return name:match("^eDP") ~= nil or name:match("^LVDS") ~= nil or name:match("^DSI") ~= nil
 end
 
--- hl.get_monitors() only lists active monitors, so the panel's name is
--- remembered for re-enabling it.
-local internal = nil
+-- The panel's connector name, from the kernel: hl.get_monitors() only lists
+-- active monitors, and after a config reload with the lid closed the panel
+-- must be kept off from the start. Learning its name only once Hyprland had
+-- re-enabled it meant enabling and then disabling it, and apps that were
+-- binding the briefly announced output died with Wayland protocol errors.
+local function internal_from_kernel()
+  local drm = io.popen("ls /sys/class/drm 2>/dev/null")
+  if not drm then
+    return nil
+  end
+  local found = nil
+  for entry in drm:lines() do
+    found = found or entry:match("^card%d+%-(eDP%-%d+)$") or entry:match("^card%d+%-(LVDS%-%d+)$") or entry:match("^card%d+%-(DSI%-%d+)$")
+  end
+  drm:close()
+  return found
+end
+
+local internal = internal_from_kernel()
 local panel_disabled = false
 
 -- Number of active monitors other than the panel (and learns its name).
