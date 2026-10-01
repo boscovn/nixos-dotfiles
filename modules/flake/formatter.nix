@@ -3,7 +3,11 @@
   perSystem =
     { pkgs, ... }:
     let
-      treefmtEval = inputs.treefmt-nix.lib.evalModule pkgs ../../treefmt.nix;
+      treefmtEval = inputs.treefmt-nix.lib.evalModule pkgs {
+        # used to find the project root
+        projectRootFile = "flake.nix";
+        programs.nixfmt.enable = true;
+      };
     in
     {
       formatter = treefmtEval.config.build.wrapper;
