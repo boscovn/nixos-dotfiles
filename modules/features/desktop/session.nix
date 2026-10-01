@@ -43,6 +43,7 @@
     # during boot, which is what lets pam_gnome_keyring (greetd's
     # KeyringMode=shared) auto-unlock the login keyring under autologin
     # without it, gnome-keyring-daemon starts but the keyring stays locked.
+    boot.tmp.cleanOnBoot = true;
     boot.plymouth.enable = true;
   };
 }
