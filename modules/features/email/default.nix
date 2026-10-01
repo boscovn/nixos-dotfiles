@@ -49,6 +49,140 @@
 
       newMailBatch = mkTagBatch "new" "tag:new and " [ "-new -- tag:new" ];
       allMailBatch = mkTagBatch "all" "" [ ];
+
+      aercFilters = "${config.programs.aerc.package}/libexec/aerc/filters";
+
+      # aerc filter for any application/* part: senders often label PDFs,
+      # spreadsheets or archives application/octet-stream (or bogus types like
+      # application/base64), so the real type comes from the attachment's
+      # extension or, failing that, its content (libmagic).
+      aerc-attachment = pkgs.writeShellApplication {
+        name = "aerc-attachment";
+        runtimeInputs = with pkgs; [
+          bat
+          chafa
+          coreutils
+          file
+          jq
+          libarchive
+          openssl
+          pandoc
+          poppler-utils
+          xlsx2csv
+        ];
+        text = ''
+          tmp=$(mktemp -d)
+          trap 'rm -rf "$tmp"' EXIT
+          name=''${AERC_FILENAME:-attachment}
+          f="$tmp/''${name//\//_}"
+          cat >"$f"
+
+          ext=""
+          [[ $name == *.* ]] && ext=''${name##*.}
+          ext=''${ext,,}
+          mime=$(file --brief --mime-type "$f")
+
+          doc() { pandoc --from "$1" --to plain --columns=100 "$f"; }
+          # Blank or separator-only rows (common in spreadsheets) would make
+          # pandoc read an empty header row and reject the rest.
+          table() { sed '/^[,[:space:]]*$/d' "$2" | pandoc --from "$1" --to plain --columns=160; }
+
+          case "$ext:$mime" in
+            pdf:* | *:application/pdf)
+              # -layout keeps columns (receipts, tables); trim its padding and collapse
+              # blank runs. No fmt: it splits deeply indented layout lines word by word.
+              pdftotext -layout -nopgbrk -q "$f" - | sed 's/[[:space:]]*$//' | cat -s ;;
+            docx:* | *:application/vnd.openxmlformats-officedocument.wordprocessingml.document)
+              doc docx ;;
+            odt:* | *:application/vnd.oasis.opendocument.text)
+              doc odt ;;
+            epub:* | *:application/epub+zip)
+              doc epub ;;
+            rtf:* | *:text/rtf | *:application/rtf)
+              doc rtf ;;
+            ipynb:*)
+              doc ipynb ;;
+            xlsx:* | *:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)
+              xlsx2csv --all "$f" "$tmp/sheets" >/dev/null
+              for sheet in "$tmp"/sheets/*.csv; do
+                printf '== %s ==\n\n' "$(basename "$sheet" .csv)"
+                table csv "$sheet"
+                echo
+              done ;;
+            csv:* | *:text/csv)
+              table csv "$f" ;;
+            tsv:* | *:text/tab-separated-values)
+              table tsv "$f" ;;
+            zip:* | 7z:* | rar:* | tar:* | tgz:* | gz:* | xz:* | zst:* \
+              | *:application/zip | *:application/x-7z-compressed | *:application/x-rar \
+              | *:application/x-tar | *:application/gzip | *:application/x-xz | *:application/zstd)
+              bsdtar -tvf "$f" ;;
+            ics:* | *:text/calendar)
+              ${aercFilters}/calendar <"$f" ;;
+            p7s:* | p7m:* | *:application/pkcs7-signature)
+              openssl pkcs7 -inform DER -in "$f" -print_certs -noout ;;
+            json:* | *:application/json)
+              jq --color-output . "$f" ;;
+            *:image/*)
+              chafa --format symbols --size 100x40 "$f" ;;
+            *:text/*)
+              bat --color=always --paging=never --style=plain --file-name="$name" "$f" ;;
+            *)
+              printf '%s\n\n%s\n' "$(file --brief "$f")" "No viewer for this type: :open or :save it." ;;
+          esac
+        '';
+      };
+
+      # aerc uses the first filter whose type matches, so this is a list
+      # (specific types first, wildcards last), written out in this order.
+      # image/* has no filter on purpose: aerc then draws images itself with
+      # the best protocol the terminal supports (kitty graphics in ghostty).
+      filters = [
+        [
+          "text/plain"
+          "wrap -w 100 | colorize"
+        ]
+        [
+          "text/html"
+          "html | colorize"
+        ]
+        [
+          "text/x-amp-html"
+          "html | colorize"
+        ]
+        [
+          "text/calendar"
+          "calendar"
+        ]
+        [
+          "text/markdown"
+          "${pkgs.pandoc}/bin/pandoc --from gfm --to plain --columns=100 | colorize"
+        ]
+        [
+          "text/*"
+          ''${pkgs.bat}/bin/bat --color=always --paging=never --style=plain --file-name="$AERC_FILENAME"''
+        ]
+        [
+          "message/delivery-status"
+          "colorize"
+        ]
+        [
+          "message/rfc822"
+          "${pkgs.caeml}/bin/caeml | colorize"
+        ]
+        [
+          "application/ics"
+          "calendar"
+        ]
+        [
+          "application/pgp-signature"
+          "cat"
+        ]
+        [
+          "application/*"
+          "${aerc-attachment}/bin/aerc-attachment"
+        ]
+      ];
     in
     {
       home.packages = with pkgs; [
@@ -92,16 +226,9 @@
             address-book-cmd = "${pkgs.ripgrep}/bin/rg --color=never -m 100 %s ${config.home.homeDirectory}/.cache/maildir-rank-addr/addressbook.tsv";
             # address-book-cmd = "${pkgs.notmuch}/bin/notmuch address %s";
           };
-          filters = {
-            "text/plain" =
-              "${pkgs.aerc}/libexec/aerc/filters/colorize | ${pkgs.aerc}/libexec/aerc/filters/wrap";
-            "text/calendar" = "${pkgs.gawk}/bin/awk -f ${pkgs.aerc}/libexec/aerc/filters/calendar";
-            "text/html" = "${pkgs.aerc}/libexec/aerc/filters/html | ${pkgs.aerc}/libexec/aerc/filters/colorize";
-            "message/delivery-status" = "${pkgs.aerc}/libexec/aerc/filters/colorize";
-            "message/rfc822" = "${pkgs.aerc}/libexec/aerc/filters/colorize";
-            "application/x-sh" = "${pkgs.bat}/bin/bat -fP -l sh";
-            "application/pdf" = "${pkgs.poppler-utils}/bin/pdftotext - -layout -nopgbrk -q -";
-          };
+          # Bundled filters (wrap, colorize, html, calendar) are on aerc's
+          # filter PATH, so they're referenced by name.
+          filters = lib.concatMapStrings (f: "${builtins.elemAt f 0} = ${builtins.elemAt f 1}\n") filters;
         };
       };
 
