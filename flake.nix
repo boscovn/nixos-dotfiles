@@ -19,6 +19,10 @@
       inputs.nixpkgs-lib.follows = "nixpkgs";
     };
     import-tree.url = "github:vic/import-tree";
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     hypr-kdeconnect-fix = {
       url = "github:boscovn/hypr-kdeconnect-fix-flake";
       inputs.nixpkgs.follows = "nixpkgs";

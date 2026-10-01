@@ -1,11 +1,24 @@
 # ThinkPad: Intel UHD 620 + Nvidia MX150 (PRIME offload).
+{ inputs, ... }:
 {
   hosts.thinkpad = { };
 
   nixos.thinkpad =
     { config, ... }:
     {
-      imports = [ ./_hardware-configuration.nix ];
+      # Hardware from the nixos-facter report; disks from disko.
+      imports = [
+        inputs.disko.nixosModules.disko
+        ./_disko.nix
+      ];
+      hardware.facter.reportPath = ./facter.json;
+      # Facter would load the detected GPU drivers (i915, nvidia) in the initrd
+      # (early KMS); kept out as before.
+      hardware.facter.detected.boot.graphics.kernelModules = [ ];
+      # Facter would set useDHCP on every detected interface, starting dhcpcd
+      # alongside the existing network setup.
+      hardware.facter.detected.dhcp.enable = false;
+
       system.stateVersion = "24.05";
 
       hardware.nvidia = {
