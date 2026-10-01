@@ -16,6 +16,7 @@
         usbutils
         v4l-utils
         vista-fonts
+        wdisplays # arrange displays live (wlr-output-management); not saved
       ];
       programs.foot.enable = true;
       programs.obsidian.enable = true;

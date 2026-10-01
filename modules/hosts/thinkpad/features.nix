@@ -23,5 +23,6 @@
     gui
     email
     kdeconnect
+    laptop
   ];
 }
