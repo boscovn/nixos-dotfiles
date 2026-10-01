@@ -32,12 +32,24 @@
         description = "Hyprland keyboard layouts (first one is active; alt+shift toggles).";
       };
 
+      options.dotfiles.terminal = lib.mkOption {
+        type = lib.types.str;
+        example = lib.literalExpression ''"''${lib.getExe config.programs.ghostty.package} +new-window"'';
+        description = "Command that opens the preferred terminal (SUPER + Return); set by each host.";
+      };
+
       config = {
         wayland.windowManager.hyprland =
           let
-            terminal = "ghostty +new-window";
-            fileManager = "dolphin";
-            menu = "fuzzel";
+            # lib.getExe pkg is "${pkg}/bin/<meta.mainProgram>"; getExe' names the binary.
+            # Programs home-manager manages use its package option, so overrides there apply.
+            inherit (lib) getExe getExe';
+            terminal = config.dotfiles.terminal;
+            fileManager = getExe pkgs.kdePackages.dolphin;
+            menu = getExe config.programs.fuzzel.package;
+            lock = getExe config.programs.hyprlock.package;
+            notifications = getExe' config.services.swaync.package "swaync-client";
+            screenshot = ''${getExe pkgs.grim} -g "$(${getExe pkgs.slurp})"'';
             mainMod = "SUPER";
 
             # Dispatchers are Lua calls (hl.dsp.*), so they go in raw;
@@ -62,15 +74,19 @@
             };
             mod = keys: "${mainMod} + ${keys}";
 
-            # Routed through ashell's IPC (instead of wpctl/brightnessctl directly)
-            # so its OSD shows on each press; ashell.nix's [settings] max_volume=150
-            # keeps the old wpctl -l 1.5 boost-past-100% headroom.
+            # With ashell, routed through its IPC so its OSD shows on each press
+            # (ashell.nix's max_volume=150 keeps the boost past 100%); without it,
+            # wpctl/brightnessctl directly, with the same -l 1.5 headroom.
+            ashell = getExe config.programs.ashell.package;
+            wpctl = getExe' pkgs.wireplumber "wpctl";
+            brightnessctl = getExe pkgs.brightnessctl;
             mediaKey =
-              key: msg:
-              bind' key (exec "ashell msg ${msg}") {
-                locked = true;
-                repeating = true;
-              };
+              key: ashellMsg: fallback:
+              bind' key (exec (if config.programs.ashell.enable then "${ashell} msg ${ashellMsg}" else fallback))
+                {
+                  locked = true;
+                  repeating = true;
+                };
           in
           {
             enable = true;
@@ -95,13 +111,13 @@
 
             settings.bind = [
               (bind (mod "Return") (exec terminal))
-              (bind (mod "N") (exec "swaync-client -op"))
+              (bind (mod "N") (exec "${notifications} -op"))
               (bind (mod "Q") (dsp' "window.close"))
               (bind (mod "F") (dsp' "window.fullscreen"))
               (bind (mod "E") (exec fileManager))
               (bind (mod "V") (dsp "window.float" { action = "toggle"; }))
               (bind (mod "D") (exec menu))
-              (bind (mod "Escape") (exec "hyprlock"))
+              (bind (mod "Escape") (exec lock))
               (bind (mod "P") (dsp' "window.pseudo"))
               # (bind (mod "M") (dsp "layout" "togglesplit"))
               (bind (mod "h") (dsp "focus" { direction = "left"; }))
@@ -112,7 +128,7 @@
               (bind (mod "SHIFT + S") (dsp "window.move" { workspace = "special:magic"; }))
               (bind (mod "mouse_down") (dsp "focus" { workspace = "e+1"; }))
               (bind (mod "mouse_up") (dsp "focus" { workspace = "e-1"; }))
-              (bind (mod "SHIFT + P") (exec "grim -g $(slurp)"))
+              (bind (mod "SHIFT + P") (exec screenshot))
             ]
             # SUPER + 1..9,0 focuses workspace 1..10; with SHIFT, moves the window there.
             ++ lib.concatMap (
@@ -128,11 +144,11 @@
             ++ [
               (bind' (mod "mouse:272") (dsp' "window.drag") { mouse = true; })
               (bind' (mod "mouse:273") (dsp' "window.resize") { mouse = true; })
-              (mediaKey "XF86AudioRaiseVolume" "volume-up")
-              (mediaKey "XF86AudioLowerVolume" "volume-down")
-              (mediaKey "XF86AudioMute" "volume-toggle-mute")
-              (mediaKey "XF86MonBrightnessUp" "brightness-up")
-              (mediaKey "XF86MonBrightnessDown" "brightness-down")
+              (mediaKey "XF86AudioRaiseVolume" "volume-up" "${wpctl} set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+")
+              (mediaKey "XF86AudioLowerVolume" "volume-down" "${wpctl} set-volume @DEFAULT_AUDIO_SINK@ 5%-")
+              (mediaKey "XF86AudioMute" "volume-toggle-mute" "${wpctl} set-mute @DEFAULT_AUDIO_SINK@ toggle")
+              (mediaKey "XF86MonBrightnessUp" "brightness-up" "${brightnessctl} set 5%+")
+              (mediaKey "XF86MonBrightnessDown" "brightness-down" "${brightnessctl} set 5%-")
             ];
           };
         services.hyprpaper.enable = true;

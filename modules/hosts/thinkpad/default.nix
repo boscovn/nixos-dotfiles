@@ -18,13 +18,19 @@
       };
     };
 
-  homeManager.thinkpad.home.stateVersion = "24.05";
+  homeManager.thinkpad =
+    { config, lib, ... }:
+    {
+      home.stateVersion = "24.05";
 
-  homeManager.thinkpad.programs.mpv.config = {
-    # Decode on the Intel iGPU: the MX150 exposes no usable NVDEC (ffmpeg
-    # -hwaccel cuda: "Hardware is lacking required capabilities" for H.264,
-    # HEVC and VP9), and the iGPU avoids waking the dGPU.
-    hwdec = "vaapi";
-    gpu-api = "opengl";
-  };
+      dotfiles.terminal = "${lib.getExe config.programs.ghostty.package} +new-window";
+
+      programs.mpv.config = {
+        # Decode on the Intel iGPU: the MX150 exposes no usable NVDEC (ffmpeg
+        # -hwaccel cuda: "Hardware is lacking required capabilities" for H.264,
+        # HEVC and VP9), and the iGPU avoids waking the dGPU.
+        hwdec = "vaapi";
+        gpu-api = "opengl";
+      };
+    };
 }
