@@ -23,6 +23,9 @@
       xdg.mimeApps = {
         enable = true;
         defaultApplications."application/pdf" = [ "org.pwmt.zathura.desktop" ];
+        # Without it, KDE apps (KDE Connect's "browse device") fall back to
+        # another inode/directory handler such as zathura's comic-book reader.
+        defaultApplications."inode/directory" = [ "org.kde.dolphin.desktop" ];
       };
     };
 }
