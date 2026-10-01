@@ -143,7 +143,12 @@ hl.on("monitor.removed", function()
   end
 end)
 
--- A config reload drops the runtime rule that disabled the panel.
+-- A config reload drops the runtime rules: re-disable the panel if the lid is
+-- closed, else keep it at 0x0 as enable_panel leaves it. With only auto rules
+-- a reload could re-order the monitors, moving them and leaving the
+-- unchanged ones' wallpaper and bar behind (as above).
 if externals() > 0 and lid_closed() then
   disable_panel()
+elseif internal then
+  hl.monitor({ output = internal, mode = "preferred", position = "0x0", scale = "auto" })
 end
