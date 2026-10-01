@@ -30,5 +30,31 @@
       [Desktop Entry]
       Hidden=true
     '';
+
+    # The presentation pointer is a transparent window the daemon makes
+    # fullscreen on Qt's primary screen (the laptop panel). On Hyprland that
+    # hides the windows behind it and blurs the wallpaper through it. Float
+    # it over the focused monitor instead, untouched by blur and focus.
+    wayland.windowManager.hyprland.settings.window_rule = [
+      {
+        name = "kdeconnect-presenter";
+        match = {
+          class = "^org\\.kde\\.kdeconnect\\.daemon$";
+          title = "^KDE Connect Daemon$";
+        };
+        suppress_event = "fullscreen maximize";
+        float = true;
+        pin = true;
+        move = "0 0";
+        size = "monitor_w monitor_h";
+        no_blur = true;
+        no_shadow = true;
+        no_anim = true;
+        border_size = 0;
+        rounding = 0;
+        no_initial_focus = true;
+        no_focus = true;
+      }
+    ];
   };
 }
