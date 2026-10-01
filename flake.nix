@@ -23,6 +23,10 @@
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nixos-wsl = {
+      url = "github:nix-community/NixOS-WSL";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     hypr-kdeconnect-fix = {
       url = "github:boscovn/hypr-kdeconnect-fix-flake";
       inputs.nixpkgs.follows = "nixpkgs";

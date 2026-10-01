@@ -69,15 +69,21 @@ Conventions:
 ### Hosts (`modules/hosts/<name>/`)
 
 - `features.nix`: what the host runs (`nixos.<name>.imports` / `homeManager.<name>.imports` lists).
-- `default.nix`: `hosts.<name>` (system, `nixos`, `nixpkgsConfig`) and host-specific settings (`system.stateVersion`, `home.stateVersion`, driver branch, PRIME bus ids, mpv decode). Hardware comes from a nixos-facter report (`hardware.facter.reportPath = ./facter.json`, regenerated with `sudo nixos-facter -o facter.json`) and disks from disko (`_disko.nix`, imported with `inputs.disko.nixosModules.disko`). Facter's detected defaults can be overridden under `hardware.facter.detected.*` (the thinkpad keeps GPU drivers out of the initrd and turns off its per-interface DHCP). Disko only generates `fileSystems`/LUKS entries; nothing is partitioned unless its format script is run. The thinkpad's `_disko.nix` pins the existing UUIDs, so it describes the current install rather than a fresh one.
+- `default.nix`: `hosts.<name>` (system, `nixos`, `nixpkgsConfig`) and host-specific settings (`system.stateVersion`, `home.stateVersion`, driver branch, mpv decode; `nvidia-prime` reads the PRIME bus ids from facter.json). Hardware comes from a nixos-facter report (`hardware.facter.reportPath = ./facter.json`, regenerated with `sudo nixos-facter -o facter.json`) and disks from disko (`_disko.nix`, imported with `inputs.disko.nixosModules.disko`). Facter's detected defaults can be overridden under `hardware.facter.detected.*` (the thinkpad keeps GPU drivers out of the initrd and turns off its per-interface DHCP). Disko only generates `fileSystems`/LUKS entries; nothing is partitioned unless its format script is run. The thinkpad's `_disko.nix` pins the existing UUIDs, so it describes the current install rather than a fresh one.
 
 The thinkpad decodes video on the Intel iGPU (`vaapi`): its MX150 exposes no usable NVDEC (ffmpeg `-hwaccel cuda` reports "Hardware is lacking required capabilities" for H.264, HEVC and VP9), and the iGPU avoids waking the dGPU. nixpkgs' global `cudaSupport` is deliberately off (`nixos.cuda` only adds the toolkit and cache): it rebuilds every CUDA-capable package (firefox pulls a ~6 GiB CUDA onnxruntime); use explicit packages like `pkgs.ollama-cuda`.
 
 ### Adding things
 
 - **A feature**: create `modules/features/<area>/<name>.nix` writing to `nixos.<name>` / `homeManager.<name>` (or into `base`/`gui`), then add it to the hosts' `features.nix`. `git add` it.
-- **A host**: `modules/hosts/<name>/default.nix` with `hosts.<name> = { ... };` and, for NixOS hosts, `hardware.facter.reportPath = ./facter.json;` plus a `_disko.nix`, plus `features.nix`. A darwin or non-NixOS WSL host sets `hosts.<name>.nixos = false` and imports only home-manager slots (typically `base`, not `gui`).
-- **Checking portability** (no darwin/WSL host exists yet): add a throwaway `modules/hosts/tmp/default.nix` with `hosts.tmp = { system = "aarch64-darwin"; nixos = false; };` and `homeManager.tmp = { imports = [ config.homeManager.base ]; home.stateVersion = "24.05"; };`, then `nix eval '.#homeConfigurations."bosco@tmp".activationPackage.drvPath'` (darwin can only be evaluated on Linux, which is what catches Linux-only packages/options). Delete it afterwards.
+- **A host**: `nix run .#new-host -- <name>` (`modules/flake/new-host.nix`) creates `modules/hosts/<name>` from `templates/<kind>`:
+  - `nixos`: facter report (this machine or over ssh), disko layout on a chosen disk (1G ESP + LUKS ext4), features preselected from the hardware;
+  - `wsl`: NixOS-WSL (`inputs.nixos-wsl`), with `base`'s bootloader, fwupd and NetworkManager forced off;
+  - `home`: home-manager only on another distribution (`nixos = false`, `targets.genericLinux`).
+
+  It fills in `system` and `stateVersion` (the locked nixpkgs release, written once), writes `features.nix` (with `dotfiles.terminal` when `gui` is picked), `git add`s and evaluates the host. Flags (`--kind`, `--report`, `--disk`, `--nixos-features`, `--home-features`) skip the menus. Hosts are named after their directory (`baseNameOf ./.`). The templates are also `nix flake init -t .#<kind>` templates with `@placeholders@` to fill by hand. darwin isn't supported yet (needs a `darwin` slot class and `darwinConfigurations`).
+- **Checking a throwaway host**: `nix run .#new-host -- tmp --kind home --home-features base` (or `--kind wsl`/`nixos`), then `git rm -r --cached modules/hosts/tmp && rm -r modules/hosts/tmp`.
+- **Checking portability** (no darwin host exists yet): add a throwaway `modules/hosts/tmp/default.nix` with `hosts.tmp = { system = "aarch64-darwin"; nixos = false; };` and `homeManager.tmp = { imports = [ config.homeManager.base ]; home.stateVersion = "24.05"; };`, then `nix eval '.#homeConfigurations."bosco@tmp".activationPackage.drvPath'` (darwin can only be evaluated on Linux, which is what catches Linux-only packages/options). Delete it afterwards.
 
 ### NixOS vs home-manager
 

@@ -37,7 +37,10 @@ in
   homeManager.base =
     { config, lib, ... }:
     {
-      stylix.autoEnable = lib.mkDefault config.dotfiles.gui;
+      # Stylix's NixOS module passes its own autoEnable (true) down to
+      # home-manager at mkDefault too; one step above it wins without a host
+      # needing mkForce (a NixOS host without gui otherwise fails to evaluate).
+      stylix.autoEnable = lib.mkOverride 999 config.dotfiles.gui;
       stylix.targets = {
         rofi.enable = false;
         bat.enable = true;

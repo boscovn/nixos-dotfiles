@@ -21,14 +21,9 @@
 
       system.stateVersion = "24.05";
 
-      hardware.nvidia = {
-        # Pascal (MX150) support ended with the 580 driver branch.
-        package = config.boot.kernelPackages.nvidiaPackages.legacy_580;
-        prime = {
-          intelBusId = "PCI:0:2:0";
-          nvidiaBusId = "PCI:1:0:0";
-        };
-      };
+      # Pascal (MX150) support ended with the 580 driver branch. The PRIME bus
+      # IDs come from facter.json (nvidia-prime).
+      hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.legacy_580;
     };
 
   homeManager.thinkpad =
