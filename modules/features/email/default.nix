@@ -13,12 +13,19 @@
       # Thunderbird is a GUI app; only with the gui bundle.
       desktop = config.dotfiles.gui;
 
+      # Folder names come from the account (accounts.email.accounts.personal
+      # .folders below); home-manager has no option for the junk folder.
+      personal = config.accounts.email.accounts.personal;
+      junkFolder = "Junk";
+      # A notmuch query for one of the personal account's maildir folders.
+      folder = name: "folder:${personal.maildir.path}/${name}";
+
       # Structural: by folder, always applied to all mail.
       folderRules = [
-        "+sent -inbox -- folder:personal/Sent"
-        "+draft -inbox -- folder:personal/Drafts"
-        "+trash -inbox -- folder:personal/Trash"
-        "+spam -inbox -- folder:personal/Junk"
+        "+sent -inbox -- ${folder personal.folders.sent}"
+        "+draft -inbox -- ${folder personal.folders.drafts}"
+        "+trash -inbox -- ${folder personal.folders.trash}"
+        "+spam -inbox -- ${folder junkFolder}"
       ];
 
       # Category tags. Applied to new mail by the post-new hook, and to all mail
@@ -209,9 +216,9 @@
             multi-file-strategy = "act-all";
             # Resolves folder names below against ~/Maildir/personal, which is
             # where mbsync puts the account (see accounts.email.accounts.personal).
-            maildir-account-path = "personal";
-            copy-to = "Sent";
-            postpone = "Drafts";
+            maildir-account-path = personal.maildir.path;
+            copy-to = personal.folders.sent;
+            postpone = personal.folders.drafts;
 
             query-map = "${config.home.homeDirectory}/.config/aerc/query-map";
           };
@@ -250,6 +257,14 @@
           # embedded-path notmuch:// source that aerc now warns as deprecated on
           # every startup.
           aerc.enable = false;
+          # The maildir's folder names (as mbsync creates them from the IMAP
+          # server); the notmuch rules and aerc settings above use these.
+          folders = {
+            inbox = "Inbox";
+            sent = "Sent";
+            drafts = "Drafts";
+            trash = "Trash";
+          };
           primary = true;
           realName = "Bosco Vallejo-Nágera";
           passwordCommand = "gopass show bosco@vallejonagera.xyz";
@@ -270,6 +285,12 @@
           };
           msmtp.enable = true;
           aerc.enable = true;
+          folders = {
+            inbox = "Inbox";
+            sent = "Sent";
+            drafts = "Drafts";
+            trash = "Trash";
+          };
           passwordCommand = "gopass show mail/no8do.com";
         };
       };
@@ -285,9 +306,9 @@
       home.file.".config/aerc/query-map".text = ''
         Inbox	tag:inbox and not tag:sent and not tag:trash and not tag:spam
         Unread	tag:unread and not tag:spam and not tag:trash
-        Sent	folder:personal/Sent
-        Drafts	folder:personal/Drafts
-        Trash	folder:personal/Trash
+        Sent	${folder personal.folders.sent}
+        Drafts	${folder personal.folders.drafts}
+        Trash	${folder personal.folders.trash}
         Spam	tag:spam
         Finance	tag:finance
         Shopping	tag:shopping
@@ -295,7 +316,7 @@
         Social	tag:social
         Newsletters	tag:newsletter
         Travel	tag:travel
-        iCloud	folder:personal/icloud
+        iCloud	${folder "icloud"}
         UTAD	tag:utad
         All	not tag:trash and not tag:spam
       '';
