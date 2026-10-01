@@ -35,15 +35,18 @@
         }
       '';
 
-      # Through nh (base/nix.nix), which finds the flake (NH_FLAKE) and the
-      # `<hostname>` / `<user>@<hostname>` configurations itself. `reb` only on
-      # NixOS hosts; standalone home-manager (`hms`) works everywhere.
+      # Through nh (base/nix.nix), which picks the `<hostname>` /
+      # `<user>@<hostname>` configuration itself. The flake is passed rather
+      # than left to NH_FLAKE: home-manager's session variables load once per
+      # login, so a newly added one is missing from terminals until re-login.
+      # `reb` only on NixOS hosts; standalone home-manager (`hms`) works
+      # everywhere.
       rebuildAliases =
         lib.optionalAttrs config.dotfiles.nixos {
-          reb = "nh os switch";
+          reb = "nh os switch ${config.programs.nh.flake}";
         }
         // {
-          hms = "nh home switch";
+          hms = "nh home switch ${config.programs.nh.flake}";
         };
     in
     {
