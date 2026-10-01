@@ -23,7 +23,10 @@
     {
       home.stateVersion = "24.05";
 
-      dotfiles.terminal = "${lib.getExe config.programs.ghostty.package} +new-window";
+      dotfiles.terminal = rec {
+        package = config.programs.ghostty.package;
+        newWindow = "${lib.getExe package} +new-window";
+      };
 
       programs.mpv.config = {
         # Decode on the Intel iGPU: the MX150 exposes no usable NVDEC (ffmpeg

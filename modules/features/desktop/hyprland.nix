@@ -32,10 +32,30 @@
         description = "Hyprland keyboard layouts (first one is active; alt+shift toggles).";
       };
 
+      # Set by each host (no default).
       options.dotfiles.terminal = lib.mkOption {
-        type = lib.types.str;
-        example = lib.literalExpression ''"''${lib.getExe config.programs.ghostty.package} +new-window"'';
-        description = "Command that opens the preferred terminal (SUPER + Return); set by each host.";
+        description = "The preferred terminal.";
+        example = lib.literalExpression ''
+          rec {
+            package = config.programs.ghostty.package;
+            newWindow = "''${lib.getExe package} +new-window";
+          }
+        '';
+        type = lib.types.submodule (
+          { config, ... }:
+          {
+            options.package = lib.mkOption {
+              type = lib.types.package;
+              description = "The terminal's package.";
+            };
+            options.newWindow = lib.mkOption {
+              type = lib.types.str;
+              default = lib.getExe config.package;
+              defaultText = lib.literalExpression "lib.getExe package";
+              description = "Command that opens a new terminal window (SUPER + Return).";
+            };
+          }
+        );
       };
 
       config = {
@@ -44,7 +64,7 @@
             # lib.getExe pkg is "${pkg}/bin/<meta.mainProgram>"; getExe' names the binary.
             # Programs home-manager manages use its package option, so overrides there apply.
             inherit (lib) getExe getExe';
-            terminal = config.dotfiles.terminal;
+            terminal = config.dotfiles.terminal.newWindow;
             fileManager = getExe pkgs.kdePackages.dolphin;
             menu = getExe config.programs.fuzzel.package;
             lock = getExe config.programs.hyprlock.package;
