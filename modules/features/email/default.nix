@@ -57,6 +57,43 @@
       newMailBatch = mkTagBatch "new" "tag:new and " [ "-new -- tag:new" ];
       allMailBatch = mkTagBatch "all" "" [ ];
 
+      # Sync mail and index/tag what arrived: `mail-sync` for every account,
+      # `mail-sync <account>` for one mbsync channel (what imapnotify runs on
+      # new mail). The lock keeps runs (and their notmuch writes) from
+      # overlapping when both accounts get mail at once. The hooks are skipped
+      # because pre-new would sync every account again; the new-mail tagging
+      # they'd do is run here.
+      mail-sync = pkgs.writeShellApplication {
+        name = "mail-sync";
+        runtimeInputs = [
+          config.programs.mbsync.package
+          pkgs.notmuch
+          pkgs.util-linux
+          # mbsync's PassCmd (gopass show ...)
+          pkgs.gopass
+          pkgs.gnupg
+        ];
+        text = ''
+          exec 9>"''${XDG_RUNTIME_DIR:-/tmp}/mail-sync.lock"
+          flock 9
+          if [ $# -eq 0 ]; then
+            mbsync --all
+          else
+            mbsync "$@"
+          fi
+          notmuch new --no-hooks
+          notmuch tag --batch --input=${newMailBatch}
+        '';
+      };
+
+      # IMAP IDLE on the inbox; on new mail, sync this account's mbsync
+      # channel (named after the account) and index it.
+      imapnotifyFor = channel: {
+        enable = true;
+        boxes = [ "INBOX" ];
+        onNotify = "${mail-sync}/bin/mail-sync ${channel}";
+      };
+
       aercFilters = "${config.programs.aerc.package}/libexec/aerc/filters";
 
       # aerc filter for any application/* part: senders often label PDFs,
@@ -195,6 +232,7 @@
       home.packages = with pkgs; [
         hydroxide
         maildir-rank-addr
+        mail-sync
         # Re-apply every tag rule to all mail, e.g. after adding or changing one.
         # Only adds tags; it never removes a tag a changed rule no longer matches.
         (writeShellScriptBin "notmuch-retag" ''
@@ -265,9 +303,10 @@
             drafts = "Drafts";
             trash = "Trash";
           };
+          imapnotify = imapnotifyFor "personal";
           primary = true;
           realName = "Bosco Vallejo-Nágera";
-          passwordCommand = "gopass show bosco@vallejonagera.xyz";
+          passwordCommand = "gopass show -o bosco@vallejonagera.xyz";
           smtp = {
             host = "smtp.hostinger.com";
           };
@@ -291,7 +330,8 @@
             drafts = "Drafts";
             trash = "Trash";
           };
-          passwordCommand = "gopass show mail/no8do.com";
+          imapnotify = imapnotifyFor "old";
+          passwordCommand = "gopass show -o mail/no8do.com";
         };
       };
       home.file.".config/maildir-rank-addr/config".text = /* toml */ ''
@@ -323,10 +363,32 @@
 
       programs.notmuch = {
         enable = true;
+        # `new` marks mail for the new-mail tag rules (newMailBatch), which
+        # remove it once applied. Without it those rules matched nothing.
+        new.tags = [
+          "new"
+          "unread"
+          "inbox"
+        ];
         hooks = {
           preNew = "mbsync --all";
           postNew = "notmuch tag --batch --input=${newMailBatch}";
         };
+      };
+
+      # New mail over IMAP IDLE (both servers support it): sync and index that
+      # account right away instead of waiting for a manual `notmuch new`.
+      services.imapnotify = {
+        enable = true;
+        # The service's whole PATH. goimapnotify runs its commands with a bare
+        # `sh -c`, so it needs a shell; gopass/gnupg for the accounts'
+        # passwordCommand (gopass show -o ...).
+        path = [
+          pkgs.bash
+          pkgs.coreutils
+          pkgs.gopass
+          pkgs.gnupg
+        ];
       };
     };
 }
