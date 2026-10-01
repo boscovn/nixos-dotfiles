@@ -22,5 +22,6 @@
     base
     gui
     email
+    kdeconnect
   ];
 }

@@ -15,7 +15,9 @@
           parts = lib.splitString ":" (lib.replaceStrings [ "." ] [ ":" ] card.sysfs_bus_id);
         in
         lib.mkIf (card != null) (
-          lib.mkDefault ("PCI:" + lib.concatMapStringsSep ":" (p: toString (lib.fromHexString p)) (lib.drop 1 parts))
+          lib.mkDefault (
+            "PCI:" + lib.concatMapStringsSep ":" (p: toString (lib.fromHexString p)) (lib.drop 1 parts)
+          )
         );
     in
     {
