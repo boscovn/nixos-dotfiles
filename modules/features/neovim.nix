@@ -12,7 +12,7 @@
 # Its colours are its own (tokyonight); stylix doesn't theme it.
 {
   homeManager.base =
-    { pkgs, ... }:
+    { lib, pkgs, ... }:
     let
       launcher = pkgs.writeShellApplication {
         name = "nvim";
@@ -53,6 +53,14 @@
       };
     in
     {
+      # With the launcher, so every host that has it (NixOS or not) uses it:
+      # shells, and programs started by user services (e.g. an aerc opened
+      # from a mail notification, whose composer runs $EDITOR).
+      home.sessionVariables.EDITOR = "nvim";
+      systemd.user.sessionVariables = lib.mkIf pkgs.stdenv.hostPlatform.isLinux {
+        EDITOR = "nvim";
+      };
+
       home.packages = [
         (pkgs.symlinkJoin {
           name = "nvim-launcher";

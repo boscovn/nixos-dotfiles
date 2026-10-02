@@ -15,6 +15,5 @@
         ];
         shell = pkgs.zsh;
       };
-      environment.sessionVariables.EDITOR = "nvim";
     };
 }
