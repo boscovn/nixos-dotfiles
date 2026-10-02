@@ -30,19 +30,17 @@
         '';
       };
 
-      # `mail-open [--view] <notmuch query>`: a new terminal window
-      # (dotfiles.terminal, gui) with a fresh aerc of just the notmuch account
-      # (`meta`, aerc.nix) on those messages, for clicked notifications;
-      # --view also opens the (single) message.
-      #
-      # aerc runs one command per launch and takes more over IPC, whose socket
-      # is $XDG_RUNTIME_DIR/aerc.sock: shared with any aerc already open (and
-      # its active account tab). So this one gets a private runtime dir that
-      # links everything in the real one (Wayland, D-Bus, gpg-agent sockets)
-      # except aerc.sock; `:view` is sent there once the message list loads.
+      # `mail-open [--view] <notmuch query>`, for clicked notifications: show
+      # those messages in the running aerc, over its IPC socket, starting one
+      # in a new terminal window (dotfiles.terminal, gui) if none runs.
+      # Switches to the notmuch account's tab (`meta`, aerc.nix) and opens the
+      # query; --view also opens the (single) message.
       mail-open = pkgs.writeShellApplication {
         name = "mail-open";
-        runtimeInputs = [ pkgs.coreutils ];
+        runtimeInputs = [
+          pkgs.coreutils
+          pkgs.procps
+        ];
         text = ''
           aerc=${lib.getExe config.programs.aerc.package}
           view=0
@@ -52,31 +50,32 @@
           fi
           query=$1
 
-          rt=$(mktemp -d "$XDG_RUNTIME_DIR/mail-open.XXXXXX")
-          for f in "$XDG_RUNTIME_DIR"/*; do
-            case ''${f##*/} in
-              aerc.sock | mail-open.*) ;;
-              *) ln -s "$f" "$rt/" ;;
-            esac
-          done
+          # A live aerc owns the socket. Never call `aerc :cmd` without one:
+          # it would start an aerc of its own here, with no terminal.
+          running() {
+            [ -S "$XDG_RUNTIME_DIR/aerc.sock" ] && pgrep -u "$(id -u)" -x .aerc-wrapped >/dev/null
+          }
+          # Run a command in it. The client always exits 0 and prints its
+          # debug log, so a failure is its "response: <error>" line.
+          ipc() { ! "$aerc" "$1" 2>&1 | grep -q '^response:'; }
+          # ~15s at most per wait.
+          retry() {
+            for _ in $(seq 75); do
+              "$@" && return 0
+              sleep 0.2
+            done
+            return 1
+          }
 
-          # shellcheck disable=SC2016 # the inner sh expands its own arguments
-          ${lib.getExe config.dotfiles.terminal.package} -e \
-            sh -c 'XDG_RUNTIME_DIR="$1" "$2" -a meta ":cf $3"; rm -rf "$1"' \
-            mail-open "$rt" "$aerc" "$query" &
-
-          [ "$view" = 1 ] || exit 0
-          # Wait for this aerc's IPC socket, then for :view to succeed (it
-          # fails until the query's message list has loaded); ~15s at most.
-          # Only call aerc once the socket exists: without a server to talk to
-          # it would start an instance of its own here.
-          for _ in $(seq 75); do
-            if [ -S "$rt/aerc.sock" ] &&
-              [ -z "$(XDG_RUNTIME_DIR=$rt "$aerc" :view 2>&1)" ]; then
-              exit 0
-            fi
-            sleep 0.2
-          done
+          if ! running; then
+            ${lib.getExe config.dotfiles.terminal.package} -e "$aerc" &
+            retry running || exit 1
+          fi
+          # The account tab can lag behind the socket while aerc starts.
+          retry ipc ":change-tab meta" || exit 1
+          ipc ":cf $query"
+          # :view fails until the query's message list has loaded.
+          [ "$view" = 0 ] || retry ipc ":view"
         '';
       };
 

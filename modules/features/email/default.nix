@@ -7,7 +7,7 @@
 # - notmuch.nix: tag rules, notmuch-retag, notmuch config and post-new hook
 # - sync.nix: mail-sync and the imapnotify (IMAP IDLE) services
 # - notify.nix (+ notify-new-mail.py): new-mail notifications, mail-open
-# - aerc.nix (+ aerc-attachment.sh): aerc settings, query map, filters
+# - aerc.nix: aerc settings, query map, viewer filters
 {
   homeManager.email =
     { config, pkgs, ... }:
