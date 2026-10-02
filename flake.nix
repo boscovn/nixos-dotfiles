@@ -9,10 +9,6 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nixvim = {
-      url = "github:nix-community/nixvim";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     treefmt-nix.url = "github:numtide/treefmt-nix";
     flake-parts = {
       url = "github:hercules-ci/flake-parts";

@@ -15,9 +15,10 @@ sudo nixos-rebuild switch --flake ~/.dotfiles#thinkpad
 # Home-manager only, standalone; aliased as `hms`
 home-manager switch --flake ~/.dotfiles#bosco@thinkpad
 
-# Neovim from this repo's nixvim config without switching anything;
-# `nnvim` wraps this and skips the ~25s eval when the config is unchanged
-nix run ~/.dotfiles#nvim
+# Neovim is its own flake (~/nvim, github:boscovn/nvim). `nvim` is a launcher
+# (modules/features/neovim.nix) that rebuilds it only when ~/nvim changed;
+# NVIM_REBUILD=1 forces a rebuild (e.g. to update from GitHub)
+nvim
 
 # Format all Nix files
 nix fmt
@@ -40,7 +41,7 @@ outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
 };
 ```
 
-[import-tree](https://github.com/vic/import-tree) imports every `.nix` file under `modules/` recursively, **except paths containing `/_`**. Use a `_` prefix for files that are not flake-parts modules: plain NixOS/home-manager modules imported by path (`_disko.nix`, `nixvim/_shared/`). Inputs are written by hand in `flake.nix` (no flake-file).
+[import-tree](https://github.com/vic/import-tree) imports every `.nix` file under `modules/` recursively, **except paths containing `/_`**. Use a `_` prefix for files that are not flake-parts modules: plain NixOS/home-manager modules imported by path (`_disko.nix`). Inputs are written by hand in `flake.nix` (no flake-file).
 
 ### Plumbing (`modules/flake/`)
 
@@ -54,7 +55,7 @@ There are **no `specialArgs`**. Values shared across files come from the top-lev
 
 A feature file writes to one or more slots. Small, related pieces merge under a shared **bundle** name instead of each getting its own name:
 
-- **`base`** (every host): `nixos.base` (boot, nix settings/caches, locale, user, network, stylix) and `homeManager.base` (shell, git/gh, gpg, CLI tools, nixvim, stylix's terminal targets).
+- **`base`** (every host): `nixos.base` (boot, nix settings/caches, locale, user, network, stylix) and `homeManager.base` (shell, git/gh, gpg, CLI tools, the `nvim` launcher, stylix's terminal targets).
 - **`gui`** (Linux desktop session): `nixos.gui` (greetd autologin, Hyprland, plymouth, keyring PAM, audio, fonts) and `homeManager.gui` (Hyprland lua config, hyprlock, hypridle, ashell, ghostty, apps, browsers, mpv, imv).
 
 Distinct, optional features have their own names: `nixos.{nvidia,nvidia-prime,cuda,intel-graphics,laptop,bluetooth,docker,gaming,kdeconnect,ssh,nixbuild,howdy}`, `homeManager.{email,kdeconnect,laptop,waybar}`.
