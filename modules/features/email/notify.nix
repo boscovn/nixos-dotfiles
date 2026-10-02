@@ -37,8 +37,10 @@
       # query; --view also opens the (single) message.
       mail-open = pkgs.writeShellApplication {
         name = "mail-open";
+        # Everything it runs: it inherits imapnotify's minimal PATH.
         runtimeInputs = [
           pkgs.coreutils
+          pkgs.gnugrep
           pkgs.procps
         ];
         text = ''
@@ -74,8 +76,16 @@
           # The account tab can lag behind the socket while aerc starts.
           retry ipc ":change-tab meta" || exit 1
           ipc ":cf $query"
-          # :view fails until the query's message list has loaded.
-          [ "$view" = 0 ] || retry ipc ":view"
+          [ "$view" = 1 ] || exit 0
+          # :view returns success but does nothing while the query's message
+          # list is still empty (loading). Once a viewer has the focus, :view
+          # is an unknown command there: that's the sign it opened. Spaced
+          # out so a viewer still opening isn't opened twice.
+          for _ in $(seq 20); do
+            "$aerc" ":view" 2>&1 | grep -q '^response: Unknown command view' && exit 0
+            sleep 0.7
+          done
+          exit 1
         '';
       };
 
