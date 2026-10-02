@@ -7,8 +7,12 @@
         name = config.my.fullName;
         inherit (config.my) email;
       };
-      # Global ignores: direnv's per-project cache (cli-tools.nix).
-      ignores = [ ".direnv/" ];
+      # Global ignores (~/.config/git/ignore): direnv's per-project cache
+      # (cli-tools.nix) and Claude Code's per-project local settings.
+      ignores = [
+        ".direnv/"
+        "**/.claude/settings.local.json"
+      ];
     };
     programs.gh.enable = true;
   };
