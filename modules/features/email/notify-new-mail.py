@@ -3,22 +3,30 @@
 Run by the post-new hook after the tag rules and before `new` is removed,
 so `tag:new` is exactly what this `notmuch new` added, and spam/trash are
 already tagged. One notification per message, or a single summary when
-many arrive at once (e.g. the first sync after a while).
+many arrive at once (e.g. the first sync after a while). Clicking one runs
+`--open` with a notmuch query for its message(s), e.g. to show them in aerc.
+
+The database is read before returning; a detached child then shows the
+notifications and waits for clicks, so the hook (and mail-sync) carry on.
 """
 
 import argparse
 import html
+import os
+import subprocess
+import sys
 
 import gi
 import notmuch2
 
 gi.require_version("Notify", "0.7")
-from gi.repository import Notify  # noqa: E402
+from gi.repository import GLib, Notify  # noqa: E402
 
 QUERY = "tag:new and tag:unread and not tag:spam and not tag:trash"
 MAX_INDIVIDUAL = 5
 APP = "notmuch"
-ICON = "mail-unread"
+# How long the child waits for clicks (also from the notification history).
+CLICK_WINDOW_SECONDS = 3600
 
 
 def header(msg, name):
@@ -40,44 +48,93 @@ def subject(msg):
     return header(msg, "subject") or "(no subject)"
 
 
+def id_query(message_ids):
+    # notmuch quotes with "..." and escapes a quote by doubling it.
+    return " or ".join('id:"{}"'.format(i.replace('"', '""')) for i in message_ids)
+
+
+def build_notes(messages):
+    """(summary, body, query to open) per notification."""
+    if len(messages) <= MAX_INDIVIDUAL:
+        return [(s, subj, id_query([mid])) for _, mid, s, subj in messages]
+    senders = sorted({s for _, _, s, _ in messages})
+    more = len(senders) - MAX_INDIVIDUAL
+    body = "From " + ", ".join(senders[:MAX_INDIVIDUAL]) + (f" and {more} more" if more > 0 else "")
+    return [(f"{len(messages)} new messages", body, id_query([mid for _, mid, _, _ in messages]))]
+
+
+def detach():
+    """Return in the parent; continue in a session-leader child with no
+    inherited files (mail-sync's lock, the hook's stdout/stderr)."""
+    if os.fork() > 0:
+        os._exit(0)
+    os.setsid()
+    devnull = os.open(os.devnull, os.O_RDWR)
+    for fd in (0, 1, 2):
+        os.dup2(devnull, fd)
+    os.closerange(3, os.sysconf("SC_OPEN_MAX"))
+
+
+def notify(notes, icon, open_cmd):
+    Notify.init(APP)
+    loop = GLib.MainLoop()
+    pending = []
+
+    def on_open(_notification, _action, query):
+        if open_cmd:
+            subprocess.Popen([open_cmd, query], start_new_session=True)
+
+    def on_closed(notification):
+        pending.remove(notification)
+        if not pending:
+            loop.quit()
+
+    for summary, body, query in notes:
+        # The body is markup for most notification servers; summaries aren't.
+        n = Notify.Notification.new(summary, html.escape(body), icon)
+        if open_cmd:
+            # "default" is the action for clicking the notification itself.
+            n.add_action("default", "Open in aerc", on_open, query)
+        n.connect("closed", on_closed)
+        pending.append(n)
+        n.show()
+
+    GLib.timeout_add_seconds(CLICK_WINDOW_SECONDS, loop.quit)
+    loop.run()
+    Notify.uninit()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--query", default=QUERY, help="notmuch query (default: %(default)s)")
+    parser.add_argument("--icon", default="mail-unread", help="icon name or file path")
+    parser.add_argument("--open", dest="open_cmd", help="command run with a notmuch query on click")
     parser.add_argument("--dry-run", action="store_true", help="print instead of notifying")
+    parser.add_argument("--foreground", action="store_true", help="don't detach (for testing)")
     args = parser.parse_args()
 
     with notmuch2.Database(mode=notmuch2.Database.MODE.READ_ONLY) as db:
         messages = sorted(
-            ((m.date, sender(m), subject(m)) for m in db.messages(args.query)),
+            (
+                (m.date, m.messageid, sender(m), subject(m))
+                for m in db.messages(args.query)
+            ),
             key=lambda item: item[0],
         )
 
     if not messages:
         return
-
-    if len(messages) > MAX_INDIVIDUAL:
-        senders = sorted({s for _, s, _ in messages})
-        shown = ", ".join(senders[:MAX_INDIVIDUAL])
-        more = len(senders) - MAX_INDIVIDUAL
-        notes = [
-            (
-                f"{len(messages)} new messages",
-                "From " + shown + (f" and {more} more" if more > 0 else ""),
-            )
-        ]
-    else:
-        notes = [(s, subj) for _, s, subj in messages]
+    notes = build_notes(messages)
 
     if args.dry_run:
-        for summary, body in notes:
-            print(f"{summary}: {body}")
+        for summary, body, query in notes:
+            print(f"{summary}: {body}\n  open: {query}")
         return
 
-    Notify.init(APP)
-    for summary, body in notes:
-        # The body is markup for most notification servers; summaries aren't.
-        Notify.Notification.new(summary, html.escape(body), ICON).show()
-    Notify.uninit()
+    if not args.foreground:
+        sys.stdout.flush()
+        detach()
+    notify(notes, args.icon, args.open_cmd)
 
 
 if __name__ == "__main__":

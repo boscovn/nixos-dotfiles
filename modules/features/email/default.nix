@@ -78,6 +78,27 @@
         '';
       };
 
+      # `mail-open <notmuch query>`: a new terminal window (dotfiles.terminal,
+      # gui) with aerc on those messages, for clicked notifications. A fresh
+      # instance (-I, no IPC) of just the notmuch account: through IPC the
+      # query would land in whatever account tab a running aerc has open.
+      mail-open = pkgs.writeShellApplication {
+        name = "mail-open";
+        text = ''
+          exec ${lib.getExe config.dotfiles.terminal.package} -e \
+            ${lib.getExe config.programs.aerc.package} -I -a meta ":cf $1"
+        '';
+      };
+
+      # Clicking a notification opens its message(s) in aerc (mail-open).
+      notifyCommand = lib.escapeShellArgs [
+        "${notify-new-mail}/bin/notify-new-mail"
+        "--icon"
+        "${pkgs.papirus-icon-theme}/share/icons/Papirus/64x64/apps/internet-mail.svg"
+        "--open"
+        "${mail-open}/bin/mail-open"
+      ];
+
       # `mail-sync <account>`: sync that account's mbsync channel, then index
       # with `notmuch new`, whose post-new hook tags the new mail. What
       # imapnotify runs on new mail; there is no sync-everything mode. The lock
@@ -394,9 +415,11 @@
           # then runs `notmuch new`.
           # Tag rules first (so spam/trash are known), then notify about what
           # this run added, then clear `new`.
+          # Notifications only with a desktop (gui): they need a notification
+          # daemon, and clicks a terminal.
           postNew = ''
             notmuch tag --batch --input=${newMailBatch}
-            ${notify-new-mail}/bin/notify-new-mail || true
+            ${lib.optionalString desktop "${notifyCommand} || true"}
             notmuch tag -new -- tag:new
           '';
         };
