@@ -54,13 +54,15 @@ def id_query(message_ids):
 
 
 def build_notes(messages):
-    """(summary, body, query to open) per notification."""
+    """(summary, body, query to open, open directly?) per notification: a
+    message's own notification opens it, the summary lists its messages."""
     if len(messages) <= MAX_INDIVIDUAL:
-        return [(s, subj, id_query([mid])) for _, mid, s, subj in messages]
+        return [(s, subj, id_query([mid]), True) for _, mid, s, subj in messages]
     senders = sorted({s for _, _, s, _ in messages})
     more = len(senders) - MAX_INDIVIDUAL
     body = "From " + ", ".join(senders[:MAX_INDIVIDUAL]) + (f" and {more} more" if more > 0 else "")
-    return [(f"{len(messages)} new messages", body, id_query([mid for _, mid, _, _ in messages]))]
+    query = id_query([mid for _, mid, _, _ in messages])
+    return [(f"{len(messages)} new messages", body, query, False)]
 
 
 def detach():
@@ -80,21 +82,23 @@ def notify(notes, icon, open_cmd):
     loop = GLib.MainLoop()
     pending = []
 
-    def on_open(_notification, _action, query):
+    def on_open(_notification, _action, target):
+        query, view = target
         if open_cmd:
-            subprocess.Popen([open_cmd, query], start_new_session=True)
+            argv = [open_cmd] + (["--view"] if view else []) + [query]
+            subprocess.Popen(argv, start_new_session=True)
 
     def on_closed(notification):
         pending.remove(notification)
         if not pending:
             loop.quit()
 
-    for summary, body, query in notes:
+    for summary, body, query, view in notes:
         # The body is markup for most notification servers; summaries aren't.
         n = Notify.Notification.new(summary, html.escape(body), icon)
         if open_cmd:
             # "default" is the action for clicking the notification itself.
-            n.add_action("default", "Open in aerc", on_open, query)
+            n.add_action("default", "Open in aerc", on_open, (query, view))
         n.connect("closed", on_closed)
         pending.append(n)
         n.show()
@@ -127,8 +131,8 @@ def main():
     notes = build_notes(messages)
 
     if args.dry_run:
-        for summary, body, query in notes:
-            print(f"{summary}: {body}\n  open: {query}")
+        for summary, body, query, view in notes:
+            print(f"{summary}: {body}\n  open: {'--view ' if view else ''}{query}")
         return
 
     if not args.foreground:
