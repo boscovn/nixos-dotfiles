@@ -29,7 +29,9 @@
       enable = true;
       clean = {
         enable = true;
-        extraArgs = "--keep-since 7d --keep 5";
+        # --keep-one: direnv roots stay per project (aged out, an unchanged
+        # project would re-evaluate on its next `cd`).
+        extraArgs = "--keep-since 7d --keep 5 --keep-one";
       };
     };
   };

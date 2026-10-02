@@ -41,6 +41,15 @@
           enable = true;
           shellWrapperName = "y";
         };
+        # Per-project dev shells on `cd`: `use flake` / `use devenv` in .envrc,
+        # then `direnv allow`. nix-direnv caches them in .direnv/ (globally
+        # git-ignored, git.nix) as GC roots, re-evaluating only when the
+        # flake/devenv files change.
+        direnv = {
+          enable = true;
+          nix-direnv.enable = true;
+          silent = true;
+        };
       };
 
       home.packages =

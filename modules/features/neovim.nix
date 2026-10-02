@@ -6,7 +6,8 @@
 #   uncommitted ones too, no --override-input), else github:boscovn/nvim;
 # - builds only when ~/nvim's files changed since the last build (or there is
 #   none yet; NVIM_REBUILD=1 forces one, e.g. to update from GitHub), keeping
-#   the result as a GC root in ~/.cache/nvim-flake;
+#   the build as a GC root in ~/.cache/nvim-flake/current (not "result":
+#   nh clean ages out result* links, so the editor would vanish after a week);
 # - a failed rebuild falls back to the previous build.
 #
 # Its colours are its own (tokyonight); stylix doesn't theme it.
@@ -23,7 +24,7 @@
         text = ''
           local_flake=''${NVIM_FLAKE_DIR:-$HOME/nvim}
           cache=''${XDG_CACHE_HOME:-$HOME/.cache}/nvim-flake
-          result=$cache/result
+          result=$cache/current
 
           if [ -f "$local_flake/flake.nix" ]; then
             ref="path:$local_flake"
