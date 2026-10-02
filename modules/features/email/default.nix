@@ -390,5 +390,23 @@
           pkgs.gnupg
         ];
       };
+      # home-manager starts them at boot (default.target), before the Wayland
+      # session: gopass then needs the GPG passphrase, pinentry has no screen to
+      # prompt on, and they fail until a retry lands after login. Tied to the
+      # graphical session, the first one prompts once and the other uses
+      # gpg-agent's cache.
+      systemd.user.services =
+        lib.genAttrs
+          (map (account: "imapnotify-${account}") [
+            "personal"
+            "old"
+          ])
+          (_: {
+            Unit = {
+              After = [ "graphical-session.target" ];
+              PartOf = [ "graphical-session.target" ];
+            };
+            Install.WantedBy = lib.mkForce [ "graphical-session.target" ];
+          });
     };
 }
