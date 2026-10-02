@@ -57,12 +57,11 @@
       newMailBatch = mkTagBatch "new" "tag:new and " [ "-new -- tag:new" ];
       allMailBatch = mkTagBatch "all" "" [ ];
 
-      # Sync mail and index/tag what arrived: `mail-sync` for every account,
-      # `mail-sync <account>` for one mbsync channel (what imapnotify runs on
-      # new mail). The lock keeps runs (and their notmuch writes) from
-      # overlapping when both accounts get mail at once. The hooks are skipped
-      # because pre-new would sync every account again; the new-mail tagging
-      # they'd do is run here.
+      # `mail-sync <account>`: sync that account's mbsync channel, then index
+      # with `notmuch new`, whose post-new hook tags the new mail. What
+      # imapnotify runs on new mail; there is no sync-everything mode. The lock
+      # keeps runs (and their notmuch writes) from overlapping when both
+      # accounts get mail at once.
       mail-sync = pkgs.writeShellApplication {
         name = "mail-sync";
         runtimeInputs = [
@@ -74,15 +73,14 @@
           pkgs.gnupg
         ];
         text = ''
+          if [ $# -ne 1 ]; then
+            echo "usage: mail-sync <account>   (an mbsync channel: personal, old)" >&2
+            exit 2
+          fi
           exec 9>"''${XDG_RUNTIME_DIR:-/tmp}/mail-sync.lock"
           flock 9
-          if [ $# -eq 0 ]; then
-            mbsync --all
-          else
-            mbsync "$@"
-          fi
-          notmuch new --no-hooks
-          notmuch tag --batch --input=${newMailBatch}
+          mbsync "$1"
+          notmuch new
         '';
       };
 
@@ -371,7 +369,8 @@
           "inbox"
         ];
         hooks = {
-          preNew = "mbsync --all";
+          # No pre-new sync: mail-sync (run by imapnotify) syncs one account,
+          # then runs `notmuch new`.
           postNew = "notmuch tag --batch --input=${newMailBatch}";
         };
       };
