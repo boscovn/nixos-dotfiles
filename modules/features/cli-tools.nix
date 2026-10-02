@@ -51,14 +51,15 @@
           devenv
           gopass
           gopls
-          nixd
+          inputs.home-manager.packages.${pkgs.stdenv.hostPlatform.system}.default
           jq
+          just
+          nixd
           nixfmt
           opensc
           ouch
           pcsc-tools
           wget
-          inputs.home-manager.packages.${pkgs.stdenv.hostPlatform.system}.default
         ]
         # trashy is Linux-only (freedesktop trash spec).
         ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [ trashy ];
