@@ -70,10 +70,8 @@
         with pkgs;
         [
           claude-code
-          delve
           devenv
           gopass
-          gopls
           inputs.home-manager.packages.${pkgs.stdenv.hostPlatform.system}.default
           jq
           just
