@@ -54,8 +54,29 @@
           )
         );
 
-      newMailBatch = mkTagBatch "new" "tag:new and " [ "-new -- tag:new" ];
+      # The post-new hook removes `new` itself, after notify-new-mail.
+      newMailBatch = mkTagBatch "new" "tag:new and " [ ];
       allMailBatch = mkTagBatch "all" "" [ ];
+
+      # notify-new-mail.py: notmuch2 bindings for the query, libnotify (through
+      # PyGObject, which needs the Notify typelib and the GLib and GdkPixbuf
+      # ones it depends on) for notifications.
+      notify-new-mail = pkgs.writeShellApplication {
+        name = "notify-new-mail";
+        runtimeEnv.GI_TYPELIB_PATH = lib.makeSearchPath "lib/girepository-1.0" [
+          pkgs.libnotify
+          pkgs.glib.out
+          pkgs.gdk-pixbuf
+        ];
+        text = ''
+          exec ${
+            pkgs.python3.withPackages (ps: [
+              ps.notmuch2
+              ps.pygobject3
+            ])
+          }/bin/python3 ${./notify-new-mail.py} "$@"
+        '';
+      };
 
       # `mail-sync <account>`: sync that account's mbsync channel, then index
       # with `notmuch new`, whose post-new hook tags the new mail. What
@@ -371,7 +392,13 @@
         hooks = {
           # No pre-new sync: mail-sync (run by imapnotify) syncs one account,
           # then runs `notmuch new`.
-          postNew = "notmuch tag --batch --input=${newMailBatch}";
+          # Tag rules first (so spam/trash are known), then notify about what
+          # this run added, then clear `new`.
+          postNew = ''
+            notmuch tag --batch --input=${newMailBatch}
+            ${notify-new-mail}/bin/notify-new-mail || true
+            notmuch tag -new -- tag:new
+          '';
         };
       };
 
