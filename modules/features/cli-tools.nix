@@ -7,6 +7,25 @@
   homeManager.base =
     { lib, pkgs, ... }:
     let
+      # Claude Code plugins run their hooks and MCP servers with node / npx,
+      # uvx or python3, which a NixOS system doesn't have unless declared.
+      # They're on claude's own PATH (inherited by what it starts), not
+      # everyone's; appended, so a project's dev shell tools win.
+      claude-code = pkgs.symlinkJoin {
+        inherit (pkgs.claude-code) name meta;
+        paths = [ pkgs.claude-code ];
+        nativeBuildInputs = [ pkgs.makeWrapper ];
+        postBuild = ''
+          wrapProgram $out/bin/claude --suffix PATH : ${
+            lib.makeBinPath [
+              pkgs.nodejs
+              pkgs.uv
+              pkgs.python3
+            ]
+          }
+        '';
+      };
+
       # trashy 2.0.0's generated zsh completion has two rest-argument specs
       # (`trash <paths>` and `trash <subcommand> ...`), which zsh rejects on
       # every Tab ("doubled rest argument definition"). Patched: the first
