@@ -1,7 +1,8 @@
 # Desktop notifications for new mail (homeManager.email, gui hosts only: they
 # need a notification daemon, and clicks a terminal). notmuch's post-new hook
 # (notmuch.nix) sends the new messages as JSON to a socket-activated daemon
-# (notmuch-notify.py) that shows them and opens clicked ones in aerc.
+# (notmuch-notify.py) that shows them, opens clicked ones in aerc and offers
+# to copy one-time codes.
 {
   homeManager.email =
     {
@@ -28,6 +29,21 @@
         '';
       };
 
+      # A message per entry, with its body text for the daemon's one-time
+      # code detection: the first text/plain part, else the first text/html
+      # one (flagged, the daemon strips its tags), truncated. Attachments
+      # aren't in notmuch's JSON.
+      batchFilter = pkgs.writeText "notmuch-notify.jq" ''
+        def parts: .body[]? | .. | objects
+          | select(has("content-type") and (.content | type) == "string");
+        [.. | objects | select(has("id") and has("headers"))
+          | ([parts | select(."content-type" | ascii_downcase == "text/plain") | .content] | first) as $plain
+          | ([parts | select(."content-type" | ascii_downcase == "text/html") | .content] | first) as $html
+          | {id, date: .timestamp, from: .headers.From, subject: .headers.Subject,
+             text: (if $plain then $plain[:8000] else ($html // "")[:65536] end),
+             html: ($plain == null and $html != null)}]
+      '';
+
       # `notmuch-notify-send [query]`, run by the post-new hook before `new`
       # is cleared: the new, unread messages (not spam/trash, tagged by then)
       # as one JSON batch to the daemon's socket. Nothing is sent without new
@@ -41,14 +57,19 @@
         ];
         text = ''
           query=''${1:-tag:new and tag:unread and not tag:spam and not tag:trash}
-          batch=$(notmuch show --format=json --entire-thread=false --body=false "$query" |
-            jq -c '[.. | objects | select(has("id") and has("headers"))
-              | {id, date: .timestamp, from: .headers.From, subject: .headers.Subject}]')
+          batch=$(notmuch show --format=json --entire-thread=false --include-html "$query" |
+            jq -c -f ${batchFilter})
           [ "$batch" != "[]" ] || exit 0
           printf '%s\n' "$batch" |
             socat -u - "UNIX-CONNECT:''${NOTMUCH_NOTIFY_SOCKET:-$XDG_RUNTIME_DIR/notmuch-notify.sock}"
         '';
       };
+
+      # A notification's "Copy <code>" button: the code on stdin, marked
+      # sensitive so clipboard managers/histories skip it.
+      copy-code = pkgs.writeShellScript "notmuch-notify-copy" ''
+        exec ${pkgs.wl-clipboard}/bin/wl-copy --sensitive
+      '';
 
       # `mail-open [--view] <notmuch query>`, for clicked notifications: show
       # those messages in the running aerc, over its IPC socket, starting one
@@ -133,13 +154,16 @@
           PartOf = [ "graphical-session.target" ];
         };
         Service = {
-          # Clicking a notification opens its message(s) in aerc (mail-open).
+          # Clicking a notification opens its message(s) in aerc (mail-open);
+          # one with a one-time code also has a button copying it.
           ExecStart = lib.escapeShellArgs [
             "${notmuch-notify}/bin/notmuch-notify"
             "--icon"
             "${pkgs.papirus-icon-theme}/share/icons/Papirus/64x64/apps/internet-mail.svg"
             "--open"
             "${mail-open}/bin/mail-open"
+            "--copy"
+            "${copy-code}"
           ];
           Restart = "on-failure";
         };
