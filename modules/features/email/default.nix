@@ -6,7 +6,7 @@
 # - default.nix: the accounts, mbsync/msmtp/Thunderbird, address book
 # - notmuch.nix: tag rules, notmuch-retag, notmuch config and post-new hook
 # - sync.nix: mail-sync and the imapnotify (IMAP IDLE) services
-# - notify.nix (+ notify-new-mail.py): new-mail notifications, mail-open
+# - notify.nix (+ notmuch-notify.py): new-mail notification daemon, mail-open
 # - aerc.nix: aerc settings, query map, viewer filters
 {
   homeManager.email =
