@@ -9,10 +9,15 @@ NixOS + Home Manager dotfiles, currently one host (a ThinkPad, x86_64-linux), or
 ## Key Commands
 
 ```bash
-# Rebuild and switch the system (+ embedded home-manager); aliased as `reb`
-sudo nixos-rebuild switch --flake ~/.dotfiles#thinkpad
+# Rebuild and switch the system (+ embedded home-manager) through nh: build,
+# diff, then switch (asks for sudo itself); aliased as `reb`
+nh os switch ~/.dotfiles
 
-# Home-manager only, standalone; aliased as `hms`
+# Home-manager only, standalone (picks bosco@<hostname>); aliased as `hms`
+nh home switch ~/.dotfiles
+
+# Equivalents without nh
+sudo nixos-rebuild switch --flake ~/.dotfiles#thinkpad
 home-manager switch --flake ~/.dotfiles#bosco@thinkpad
 
 # Neovim is its own flake (~/nvim, github:boscovn/nvim). `nvim` is a launcher
@@ -27,7 +32,9 @@ nix fmt
 nix flake check
 ```
 
-Flakes only see files git tracks: `git add` new files before building.
+Flakes only see files git tracks: `git add` new files before building. The user often has uncommitted edits of their own in the tree: stage and commit files by name, never `git add -u`/`-A`.
+
+nh also cleans weekly (`nh clean`, `base/nix.nix`: `--keep-since 7d --keep 5 --keep-one`); it ages out `result*` links and direnv GC roots, so anything that must survive is rooted elsewhere (the nvim launcher uses `~/.cache/nvim-flake/current`).
 
 ## Architecture
 
@@ -41,7 +48,7 @@ outputs = inputs: inputs.flake-parts.lib.mkFlake { inherit inputs; } {
 };
 ```
 
-[import-tree](https://github.com/vic/import-tree) imports every `.nix` file under `modules/` recursively, **except paths containing `/_`**. Use a `_` prefix for files that are not flake-parts modules: plain NixOS/home-manager modules imported by path (`_disko.nix`). Inputs are written by hand in `flake.nix` (no flake-file).
+[import-tree](https://github.com/vic/import-tree) imports every `.nix` file under `modules/` recursively, **except paths containing `/_`**. Use a `_` prefix for files that are not flake-parts modules: plain NixOS/home-manager modules imported by path (`_disko.nix`), or a module kept but not loaded (`desktop/_waybar.nix`; ashell is used instead). Non-Nix files sit next to the module that references them by path (`hardware/laptop-lid.lua`, `desktop/display-mirror.lua`, `email/notmuch-notify.py`). Inputs are written by hand in `flake.nix` (no flake-file).
 
 ### Plumbing (`modules/flake/`)
 
@@ -58,7 +65,7 @@ A feature file writes to one or more slots. Small, related pieces merge under a 
 - **`base`** (every host): `nixos.base` (boot, nix settings/caches, locale, user, network, stylix) and `homeManager.base` (shell, git/gh, gpg, CLI tools, the `nvim` launcher, stylix's terminal targets).
 - **`gui`** (Linux desktop session): `nixos.gui` (greetd autologin, Hyprland, plymouth, keyring PAM, audio, fonts) and `homeManager.gui` (Hyprland lua config, hyprlock, hypridle, ashell, ghostty, apps, browsers, mpv, imv).
 
-Distinct, optional features have their own names: `nixos.{nvidia,nvidia-prime,cuda,intel-graphics,laptop,bluetooth,docker,gaming,kdeconnect,ssh,nixbuild,howdy}`, `homeManager.{email,kdeconnect,laptop,waybar}`.
+Distinct, optional features have their own names: `nixos.{nvidia,nvidia-prime,cuda,intel-graphics,laptop,bluetooth,docker,gaming,kdeconnect,ssh,nixbuild,howdy}`, `homeManager.{email,kdeconnect,laptop}`. The thinkpad imports all of them except `howdy` (paused).
 
 Conventions:
 - **Importing enables.** No `enable` flags: a host that should not have a feature does not import it.
@@ -66,6 +73,16 @@ Conventions:
 - **Cross-feature facts** are typed home-manager options, not host data: `dotfiles.gui` (declared in `base`, set by `gui`) drives the gpg pinentry, stylix `autoEnable` and Thunderbird; `dotfiles.kbLayouts` (Hyprland, default `es,us`).
 - **Platform differences** use the platform (`pkgs.stdenv.hostPlatform.isDarwin`/`isLinux`), e.g. `home.homeDirectory`, gpg-agent.
 - `base` must stay portable (no Linux-desktop assumptions); GUI and Linux-only things go in `gui`.
+
+### Notable features
+
+- **Hyprland** (`desktop/hyprland.nix`, gui): settings are written in Nix and rendered to Hyprland's Lua config (0.56 Lua API); logic that needs code goes in `.lua` files added with `extraLuaFiles` (`display-mirror.lua`, SUPER+M; `laptop-lid.lua` from `laptop`: panel off when docked, lock + DPMS off otherwise). Programs are referenced by store path. The terminal is the typed `dotfiles.terminal` (`{ package, newWindow }`), set per host. Bar: ashell (module names must match its enum exactly; wrong ones vanish silently).
+- **Email** (`email/`, `homeManager.email`; the directory's files all add to it, see `email/default.nix`'s header): mbsync/msmtp accounts (passwords via `gopass show -o`), one goimapnotify (IMAP IDLE) service per account running `mail-sync <account>`, notmuch with tag rules in its post-new hook, aerc (notmuch `meta` account, viewer filters, `less -Rc`). On gui hosts the post-new hook sends new mail as JSON to a socket-activated user service (`notmuch-notify.socket`/`.service`, `notmuch-notify.py`) that shows notifications, opens a clicked one in aerc over aerc's IPC (`mail-open`) and offers to copy one-time codes (`wl-copy --sensitive`).
+- **KDE Connect**: daemon and indicator in home-manager; the NixOS side only opens the firewall (`programs.kdeconnect.package = null`) and enables `hypr-kdeconnect-fix` (flake input).
+- **Neovim** lives in its own flake (`~/nvim`, github:boscovn/nvim, nixvim, tokyonight; not themed by stylix). `neovim.nix` installs an `nvim`/`vim` launcher and sets `EDITOR` (`home.sessionVariables` + systemd user env).
+- **Dev tooling** (`cli-tools.nix`): direnv with nix-direnv (`use flake` in `.envrc`), devenv; Claude Code is wrapped with nodejs, uv and python3 appended to its PATH (for plugins). Global git ignores (`git.nix`): `.direnv/`, `**/.claude/settings.local.json`.
+- **nixbuild** (`services/nixbuild.nix`): eu.nixbuild.net as remote builder for x86_64-linux and aarch64-linux, with root's dedicated ssh key (created by hand, see the file).
+- **Theme**: stylix with Catppuccin Mocha (`stylix.nix`), NixOS and home-manager.
 
 ### Hosts (`modules/hosts/<name>/`)
 
