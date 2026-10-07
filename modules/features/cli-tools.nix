@@ -70,20 +70,6 @@
           silent = true;
         };
       };
-      # `use devenv` without `eval "$(devenv direnvrc)"` in every .envrc:
-      # devenv's direnv function, generated from the installed devenv into
-      # direnv's library (loaded for every .envrc). It is adapted from
-      # nix-direnv and reuses three of its helper names with different bodies;
-      # in one library the later file's would replace the other's (breaking
-      # `use devenv` or `use flake`), so devenv's are renamed. The build fails
-      # if a devenv update changes them.
-      xdg.configFile."direnv/lib/devenv.sh".source = pkgs.runCommand "devenv-direnvrc" { } ''
-        HOME=$TMPDIR ${lib.getExe pkgs.devenv} direnvrc >raw
-        sed -E 's/\b_nix_(direnv_preflight|export_or_unset|import_env)\b/_devenv_\1/g' raw >$out
-        grep -q '^use_devenv' $out
-        ! grep -qE '\b_nix_(direnv_preflight|export_or_unset|import_env)\b' $out
-        grep -q '_devenv_direnv_preflight' $out
-      '';
 
       home.packages =
         with pkgs;

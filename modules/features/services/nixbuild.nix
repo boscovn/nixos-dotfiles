@@ -28,6 +28,21 @@
           supportedFeatures = [
             "benchmark"
             "big-parallel"
+            "ca-derivations"
+            "kvm"
+            "nixos-test"
+          ];
+        }
+        {
+          hostName = "eu.nixbuild.net";
+          system = "aarch64-linux";
+          maxJobs = 100;
+          supportedFeatures = [
+            "benchmark"
+            "big-parallel"
+            "ca-derivations"
+            "kvm"
+            "nixos-test"
           ];
         }
       ];
