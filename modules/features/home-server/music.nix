@@ -47,7 +47,10 @@
             log = "${config.xdg.configHome}/beets/import.log";
           };
           paths.default = "$albumartist/($year) $album%aunique{}/$track $title";
+          # The MusicBrainz autotagger is a plugin, only on by default when
+          # no plugins are listed.
           plugins = [
+            "musicbrainz"
             "fetchart"
             "embedart"
           ];
