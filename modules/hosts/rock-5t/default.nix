@@ -31,7 +31,6 @@ in
 
       home.packages = with pkgs; [
         _7zz
-        beets
         btop
         ffmpeg
         fzf
