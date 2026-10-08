@@ -37,7 +37,6 @@ in
         fzf
         imagemagick
         mkcert
-        pipx
         sqlite
       ];
     };
