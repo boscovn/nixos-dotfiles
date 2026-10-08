@@ -35,6 +35,19 @@
       programs.bash = {
         enable = true;
         shellAliases = rebuildAliases;
+        # Without NixOS the login shell stays the distribution's bash (no
+        # chsh, no /etc/shells entry); its first interactive shell hands over
+        # to this zsh. A `bash` started from zsh stays bash (SHLVL > 1), and
+        # if the Nix zsh is missing, bash simply carries on.
+        initExtra = lib.mkIf (!config.dotfiles.nixos) ''
+          if [ "$SHLVL" = 1 ] && [ -x ${lib.getExe config.programs.zsh.package} ]; then
+            if shopt -q login_shell; then
+              exec ${lib.getExe config.programs.zsh.package} -l
+            else
+              exec ${lib.getExe config.programs.zsh.package}
+            fi
+          fi
+        '';
       };
       programs.starship.enable = true;
       programs.zoxide.enable = true;
