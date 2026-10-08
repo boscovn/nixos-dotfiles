@@ -1,5 +1,6 @@
 # Turns each `hosts.<name>` into nixosConfigurations.<name> (home-manager
-# embedded, `reb`) and homeConfigurations."<user>@<name>" (standalone, `hms`).
+# embedded, `reb`) and homeConfigurations."<user>@<name>" (standalone, `hms`),
+# <user> being hosts.<name>.user (default: my.user).
 # Both use the same `homeManager.<name>` module, so they cannot drift.
 {
   lib,
@@ -9,7 +10,6 @@
 }:
 let
   inherit (inputs) nixpkgs home-manager;
-  inherit (config.my) user;
 
   # allowUnfree everywhere; a host adds or overrides via hosts.<name>.nixpkgsConfig.
   nixpkgsConfig = host: { allowUnfree = true; } // host.nixpkgsConfig;
@@ -22,6 +22,11 @@ let
         type = lib.types.str;
         readOnly = true;
       };
+      user = lib.mkOption {
+        type = lib.types.str;
+        readOnly = true;
+        description = "The host's user (hosts.<name>.user).";
+      };
       nixos = lib.mkOption {
         type = lib.types.bool;
         readOnly = true;
@@ -30,7 +35,7 @@ let
     };
     config.dotfiles = {
       hostname = name;
-      inherit (host) nixos;
+      inherit (host) nixos user;
     };
   };
 
@@ -48,7 +53,7 @@ let
         {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
-          home-manager.users.${user}.imports = [
+          home-manager.users.${host.user}.imports = [
             (hostModule name host)
             config.homeManager.${name}
           ];
@@ -89,6 +94,11 @@ in
             type = lib.types.str;
             default = "x86_64-linux";
           };
+          user = lib.mkOption {
+            type = lib.types.str;
+            default = config.my.user;
+            description = "The user home-manager is set up for on this host.";
+          };
           nixos = lib.mkOption {
             type = lib.types.bool;
             default = true;
@@ -107,7 +117,7 @@ in
   config.flake = {
     nixosConfigurations = lib.mapAttrs mkSystem (lib.filterAttrs (_: host: host.nixos) config.hosts);
     homeConfigurations = lib.mapAttrs' (
-      name: host: lib.nameValuePair "${user}@${name}" (mkHome name host)
+      name: host: lib.nameValuePair "${host.user}@${name}" (mkHome name host)
     ) config.hosts;
   };
 }
