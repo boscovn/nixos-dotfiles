@@ -17,7 +17,6 @@
           bitrate = 320;
           cache_path = "${config.xdg.cacheHome}/spotifyd";
           volume_normalisation = true;
-          normalisation_pregain = -10;
         };
       };
     };
