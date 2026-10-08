@@ -37,10 +37,11 @@
         shellAliases = rebuildAliases;
         # Without NixOS the login shell stays the distribution's bash (no
         # chsh, no /etc/shells entry); its first interactive shell hands over
-        # to this zsh. A `bash` started from zsh stays bash (SHLVL > 1), and
-        # if the Nix zsh is missing, bash simply carries on.
+        # to this zsh. Not for `bash -ic CMD` (tools that run a command in an
+        # interactive shell), a `bash` started from zsh stays bash (SHLVL > 1),
+        # and if the Nix zsh is missing, bash simply carries on.
         initExtra = lib.mkIf (!config.dotfiles.nixos) ''
-          if [ "$SHLVL" = 1 ] && [ -x ${lib.getExe config.programs.zsh.package} ]; then
+          if [ "$SHLVL" = 1 ] && [ -z "$BASH_EXECUTION_STRING" ] && [ -x ${lib.getExe config.programs.zsh.package} ]; then
             if shopt -q login_shell; then
               exec ${lib.getExe config.programs.zsh.package} -l
             else
