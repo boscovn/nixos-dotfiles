@@ -37,18 +37,20 @@
         shellAliases = rebuildAliases;
         # Without NixOS the login shell stays the distribution's bash (no
         # chsh, no /etc/shells entry); its first interactive shell hands over
-        # to this zsh. Not for `bash -ic CMD` (tools that run a command in an
-        # interactive shell), a `bash` started from zsh stays bash (SHLVL > 1),
-        # and if the Nix zsh is missing, bash simply carries on.
-        initExtra = lib.mkIf (!config.dotfiles.nixos) ''
-          if [ "$SHLVL" = 1 ] && [ -z "$BASH_EXECUTION_STRING" ] && [ -x ${lib.getExe config.programs.zsh.package} ]; then
-            if shopt -q login_shell; then
-              exec ${lib.getExe config.programs.zsh.package} -l
-            else
-              exec ${lib.getExe config.programs.zsh.package}
+        # to this zsh, as $SHELL too (what tmux, :terminal etc. start). Not for
+        # `bash -ic CMD` (tools that run a command in an interactive shell), a
+        # `bash` started from zsh stays bash (SHLVL > 1), and if the Nix zsh is
+        # missing, bash simply carries on.
+        initExtra =
+          let
+            zsh = lib.getExe config.programs.zsh.package;
+          in
+          lib.mkIf (!config.dotfiles.nixos) ''
+            if [ "$SHLVL" = 1 ] && [ -z "$BASH_EXECUTION_STRING" ] && [ -x ${zsh} ]; then
+              export SHELL=${zsh}
+              if shopt -q login_shell; then exec ${zsh} -l; else exec ${zsh}; fi
             fi
-          fi
-        '';
+          '';
       };
       programs.starship.enable = true;
       programs.zoxide.enable = true;
