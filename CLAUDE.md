@@ -65,7 +65,7 @@ A feature file writes to one or more slots. Small, related pieces merge under a 
 - **`base`** (every host): `nixos.base` (boot, nix settings/caches, locale, user, network, stylix) and `homeManager.base` (shell, git/gh, gpg, CLI tools, the `nvim` launcher, stylix's terminal targets).
 - **`gui`** (Linux desktop session): `nixos.gui` (greetd autologin, Hyprland, plymouth, keyring PAM, audio, fonts) and `homeManager.gui` (Hyprland lua config, hyprlock, hypridle, ashell, ghostty, apps, browsers, mpv, imv).
 
-Distinct, optional features have their own names: `nixos.{nvidia,nvidia-prime,cuda,intel-graphics,laptop,bluetooth,docker,gaming,kdeconnect,ssh,nixbuild,howdy}`, `homeManager.{email,kdeconnect,laptop}`. The thinkpad imports all of them except `howdy` (paused).
+Distinct, optional features have their own names: `nixos.{nvidia,nvidia-prime,cuda,intel-graphics,laptop,bluetooth,docker,gaming,kdeconnect,ssh,nixbuild,tailscale,secrets,howdy}`, `homeManager.{email,kdeconnect,laptop,tailscale,secrets}`. The thinkpad imports all of them except `howdy` (paused).
 
 Conventions:
 - **Importing enables.** No `enable` flags: a host that should not have a feature does not import it.
@@ -81,7 +81,8 @@ Conventions:
 - **KDE Connect**: daemon and indicator in home-manager; the NixOS side only opens the firewall (`programs.kdeconnect.package = null`) and enables `hypr-kdeconnect-fix` (flake input).
 - **Neovim** lives in its own flake (`~/nvim`, github:boscovn/nvim, nixvim, tokyonight; not themed by stylix). `neovim.nix` installs an `nvim`/`vim` launcher and sets `EDITOR` (`home.sessionVariables` + systemd user env).
 - **Dev tooling** (`cli-tools.nix`): direnv with nix-direnv (`use flake` in `.envrc`), devenv; Claude Code is wrapped with nodejs, uv and python3 appended to its PATH (for plugins). Global git ignores (`git.nix`): `.direnv/`, `**/.claude/settings.local.json`.
-- **nixbuild** (`services/nixbuild.nix`): eu.nixbuild.net as remote builder for x86_64-linux and aarch64-linux, with root's dedicated ssh key (created by hand, see the file).
+- **nixbuild** (`services/nixbuild.nix`): eu.nixbuild.net as remote builder for x86_64-linux and aarch64-linux, with a dedicated ssh key from the host's sops secrets (`nixbuild-ssh-key`; creating one for a new host: see the file).
+- **Secrets** (`secrets.nix`): sops-nix. Recipients in `.sops.yaml` (bosco's GPG key + each host's age key from its ssh host key, `ssh-to-age`); a host's secrets in `modules/hosts/<name>/secrets.yaml` (its `sops.defaultSopsFile`), edited with `sops <file>`, `sops updatekeys <file>` after changing recipients. A feature needing a secret imports `nixos.secrets` itself and declares `sops.secrets.<name>` (nixbuild's ssh key → `/run/secrets/nixbuild-ssh-key`). home-manager decrypts with `~/.config/sops/age/keys.txt` (placed by hand). gopass stays for interactive passwords.
 - **Theme**: stylix with Catppuccin Mocha (`stylix.nix`), NixOS and home-manager.
 
 ### Hosts (`modules/hosts/<name>/`)
