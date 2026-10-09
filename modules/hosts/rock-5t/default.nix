@@ -29,6 +29,10 @@ in
       # Completions for Docker (from Docker's apt repository).
       programs.zsh.initContent = "fpath+=~/.zsh/completions";
 
+      # Secrets decrypt with this host's own age key
+      # (~/.config/sops/age/keys.txt, made here with age-keygen; .sops.yaml).
+      sops.defaultSopsFile = ./secrets.yaml;
+
       home.packages = with pkgs; [
         _7zz
         btop

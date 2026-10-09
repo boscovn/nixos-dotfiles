@@ -8,5 +8,6 @@ in
   homeManager.${name}.imports = with slots.homeManager; [
     base
     homeServer
+    secrets
   ];
 }

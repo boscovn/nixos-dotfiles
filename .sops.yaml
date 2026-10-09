@@ -1,11 +1,17 @@
 # Who can decrypt what (sops reads this when encrypting/`sops updatekeys`).
-# bosco: the GPG key gopass uses. Hosts: age keys derived from their ssh host
-# key (`ssh-to-age < /etc/ssh/ssh_host_ed25519_key.pub`).
+# bosco: the GPG key gopass uses. NixOS hosts: age keys derived from their ssh
+# host key (`ssh-to-age < /etc/ssh/ssh_host_ed25519_key.pub`); home-manager-only
+# hosts: their own ~/.config/sops/age/keys.txt (age-keygen, made on the host).
 keys:
   - &bosco 3F229726BFEAC4B0F308B955D619F5309921FA2F
   - &thinkpad age1lms4xzzvs0432qdqamzmwhfuzjt04k8z8wwlvsqlt9tmwkznzclqecczpn
+  - &rock-5t age1ykvg7twnl0zh3wtsv55rt99k4h567948uukm23ng4405d4us4ghqje0qq9
 creation_rules:
   - path_regex: ^modules/hosts/thinkpad/secrets\.yaml$
     key_groups:
       - pgp: [*bosco]
         age: [*thinkpad]
+  - path_regex: ^modules/hosts/rock-5t/secrets\.yaml$
+    key_groups:
+      - pgp: [*bosco]
+        age: [*rock-5t]
