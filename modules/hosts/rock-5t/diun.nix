@@ -1,9 +1,15 @@
-# Diun on the media server: every 6 hours, checks the images pinned in
-# ~/mediamanager's compose.lock.yaml for newer tags and publishes them to the
-# self-hosted ntfy (token from this host's secrets.yaml). One-shot runs from a
-# timer: with no watch.schedule, diun checks once and exits. Its database of
-# tags already seen is kept in ~/.local/state/diun, so each new tag notifies
-# once; the first run only records them (firstCheckNotif).
+# Diun on the media server: every 6 hours, checks the running containers'
+# images (Docker socket; radxa is in the docker group) for newer version tags
+# and publishes them to the self-hosted ntfy (token from this host's
+# secrets.yaml). Run once per timer tick: with no watch.schedule, `diun serve`
+# checks once and exits. Its database of tags already seen is kept in
+# ~/.local/state/diun, so each new tag notifies once; the first run only
+# records them (firstCheckNotif).
+#
+# Only plain x.y.z / vx.y.z tags are watched, newest 5 by semver (the cap keeps
+# Docker Hub's rate limit from cutting the first run short, after which old
+# tags would notify as new). Images tagged otherwise (linuxserver's
+# x.y.z.w-lsN, immich's postgres) match none and are skipped.
 let
   name = baseNameOf ./.;
 in
@@ -12,27 +18,26 @@ in
     { config, pkgs, ... }:
     let
       stateDir = "${config.xdg.stateHome}/diun";
-      lockfile = "${config.home.homeDirectory}/mediamanager/compose.lock.yaml";
-
-      diun-images = pkgs.writers.writePython3Bin "diun-images" {
-        libraries = [ pkgs.python3Packages.pyyaml ];
-        flakeIgnore = [ "E501" ];
-      } (builtins.readFile ./diun-images.py);
-
       settings = {
         db.path = "${stateDir}/diun.db";
         watch = {
           workers = 4;
           firstCheckNotif = false;
         };
-        providers.file.filename = "${stateDir}/images.yml";
+        defaults = {
+          watchRepo = true;
+          sortTags = "semver";
+          maxTags = 5;
+          includeTags = [ "^v?\\d+\\.\\d+\\.\\d+$" ];
+        };
+        providers.docker.watchByDefault = true;
         notif.ntfy = {
           endpoint = "https://ntfy.vallejonagera.xyz";
           topic = "diun";
           tokenFile = config.sops.secrets.ntfy-token.path;
           tags = [ "whale" ];
-          templateTitle = "{{ .Entry.Metadata.service }}: {{ .Entry.Image.Tag }}";
-          templateBody = "{{ .Entry.Image }} is available (running {{ .Entry.Metadata.running }}).";
+          templateTitle = "{{ .Entry.Metadata.ctn_names }}: {{ .Entry.Image.Tag }}";
+          templateBody = "{{ .Entry.Image }} is available.";
         };
       };
     in
@@ -41,7 +46,7 @@ in
 
       systemd.user.services.diun = {
         Unit = {
-          Description = "Check the media server's images for new tags";
+          Description = "Check the running containers' images for new tags";
           After = [
             "network-online.target"
             "sops-nix.service"
@@ -50,22 +55,17 @@ in
         };
         Service = {
           Type = "oneshot";
-          ExecStartPre = [
-            "${pkgs.coreutils}/bin/mkdir -p ${stateDir}"
-            "${diun-images}/bin/diun-images ${lockfile} ${stateDir}/images.yml"
-          ];
-          ExecStart = builtins.concatStringsSep " " [
-            "${pkgs.diun}/bin/diun serve"
-            "--config ${(pkgs.formats.yaml { }).generate "diun.yml" settings}"
-            # Only for the duration of a run, but on loopback, not every interface.
-            "--grpc-authority 127.0.0.1:42286"
-            "--log-nocolor"
-          ];
+          # StateDirectory= would be ~/.config on this systemd (252), and
+          # diun doesn't create the database's directory.
+          ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p ${stateDir}";
+          ExecStart = "${pkgs.diun}/bin/diun serve --config ${
+            (pkgs.formats.yaml { }).generate "diun.yml" settings
+          } --log-nocolor";
         };
       };
 
       systemd.user.timers.diun = {
-        Unit.Description = "Check the media server's images for new tags";
+        Unit.Description = "Check the running containers' images for new tags";
         Timer = {
           OnCalendar = "00/6:00";
           RandomizedDelaySec = "30m";
