@@ -58,9 +58,14 @@ in
           # StateDirectory= would be ~/.config on this systemd (252), and
           # diun doesn't create the database's directory.
           ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p ${stateDir}";
-          ExecStart = "${pkgs.diun}/bin/diun serve --config ${
-            (pkgs.formats.yaml { }).generate "diun.yml" settings
-          } --log-nocolor";
+          ExecStart = builtins.concatStringsSep " " [
+            "${pkgs.diun}/bin/diun serve"
+            "--config ${(pkgs.formats.yaml { }).generate "diun.yml" settings}"
+            # diun serves its (unauthenticated) gRPC API even for a single run,
+            # on every interface by default; runs take minutes.
+            "--grpc-authority 127.0.0.1:42286"
+            "--log-nocolor"
+          ];
         };
       };
 
