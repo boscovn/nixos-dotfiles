@@ -1,0 +1,11 @@
+# Who can decrypt what (sops reads this when encrypting/`sops updatekeys`).
+# bosco: the GPG key gopass uses. Hosts: age keys derived from their ssh host
+# key (`ssh-to-age < /etc/ssh/ssh_host_ed25519_key.pub`).
+keys:
+  - &bosco 3F229726BFEAC4B0F308B955D619F5309921FA2F
+  - &thinkpad age1lms4xzzvs0432qdqamzmwhfuzjt04k8z8wwlvsqlt9tmwkznzclqecczpn
+creation_rules:
+  - path_regex: ^modules/hosts/thinkpad/secrets\.yaml$
+    key_groups:
+      - pgp: [*bosco]
+        age: [*thinkpad]

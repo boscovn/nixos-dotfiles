@@ -12,6 +12,7 @@
         ./_disko.nix
       ];
       hardware.facter.reportPath = ./facter.json;
+      sops.defaultSopsFile = ./secrets.yaml;
       # Facter would load the detected GPU drivers (i915, nvidia) in the initrd
       # (early KMS); kept out as before.
       hardware.facter.detected.boot.graphics.kernelModules = [ ];

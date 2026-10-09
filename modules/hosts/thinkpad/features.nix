@@ -14,6 +14,7 @@
     gaming
     kdeconnect
     ssh
+    secrets
     nixbuild
     tailscale
     # howdy  # paused: face match kept returning "no match"
@@ -26,5 +27,6 @@
     kdeconnect
     laptop
     tailscale
+    secrets
   ];
 }
