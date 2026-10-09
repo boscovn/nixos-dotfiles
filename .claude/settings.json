@@ -1,4 +1,82 @@
 {
+  "permissions": {
+    "allow": [
+      "mcp__nixos",
+      "Bash(nix eval *)",
+      "Bash(nix build *)",
+      "Bash(nix flake check *)",
+      "Bash(nix flake check)",
+      "Bash(nix flake show *)",
+      "Bash(nix flake metadata *)",
+      "Bash(nix fmt *)",
+      "Bash(nix fmt)",
+      "Bash(nix log *)",
+      "Bash(nix path-info *)",
+      "Bash(nix why-depends *)",
+      "Bash(nix derivation show *)",
+      "Bash(nix store diff-closures *)",
+      "Bash(nh os build *)",
+      "Bash(nh home build *)",
+      "Bash(nixfmt *)",
+      "Bash(git status *)",
+      "Bash(git status)",
+      "Bash(git diff *)",
+      "Bash(git diff)",
+      "Bash(git log *)",
+      "Bash(git show *)",
+      "Bash(git ls-files *)",
+      "Bash(git blame *)"
+    ],
+    "deny": [
+      "Bash(git add -A*)",
+      "Bash(git add --all*)",
+      "Bash(git add -u*)",
+      "Bash(git add --update*)",
+      "Bash(git add .)",
+      "Bash(git add . *)",
+      "Bash(git commit -a*)",
+      "Bash(git commit --all*)"
+    ],
+    "ask": [
+      "Bash(nh os switch *)",
+      "Bash(nh os boot *)",
+      "Bash(nh os test *)",
+      "Bash(nh home switch *)",
+      "Bash(nh clean *)",
+      "Bash(nixos-rebuild *)",
+      "Bash(sudo *)",
+      "Bash(home-manager switch *)",
+      "Bash(nix flake update *)",
+      "Bash(nix flake update)",
+      "Bash(sops *)",
+      "Bash(git push *)",
+      "Bash(git stash *)",
+      "Bash(git checkout -- *)",
+      "Bash(git restore *)",
+      "Bash(git reset *)"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "nixos"
+  ],
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/nix-post-edit.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "nixd-lsp@dotfiles": true,
+    "lua-lsp@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true
+  },
   "extraKnownMarketplaces": {
     "dotfiles": {
       "source": {
@@ -6,8 +84,5 @@
         "path": "/home/bosco/.dotfiles/claude-plugins"
       }
     }
-  },
-  "enabledPlugins": {
-    "nixd-lsp@dotfiles": true
   }
 }

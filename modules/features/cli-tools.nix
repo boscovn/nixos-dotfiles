@@ -10,7 +10,9 @@
       # Claude Code plugins run their hooks and MCP servers with node / npx,
       # uvx or python3, which a NixOS system doesn't have unless declared.
       # They're on claude's own PATH (inherited by what it starts), not
-      # everyone's; appended, so a project's dev shell tools win.
+      # everyone's; appended, so a project's dev shell tools win. Also the
+      # language servers of the LSP plugins (nixd is in home.packages) and
+      # mcp-nixos, which the dotfiles' .mcp.json starts.
       claude-code = pkgs.symlinkJoin {
         inherit (pkgs.claude-code) name meta;
         paths = [ pkgs.claude-code ];
@@ -21,6 +23,9 @@
               pkgs.nodejs
               pkgs.uv
               pkgs.python3
+              pkgs.lua-language-server
+              pkgs.pyright
+              pkgs.mcp-nixos
             ]
           }
         '';
