@@ -15,6 +15,7 @@
     kdeconnect
     ssh
     nixbuild
+    tailscale
     # howdy  # paused: face match kept returning "no match"
   ];
 
@@ -24,5 +25,6 @@
     email
     kdeconnect
     laptop
+    tailscale
   ];
 }
